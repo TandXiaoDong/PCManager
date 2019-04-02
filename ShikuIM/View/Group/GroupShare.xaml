@@ -1,0 +1,200 @@
+﻿<Window x:Class="ShikuIM.View.GroupShare"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShikuIM.View"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:convert="clr-namespace:ShikuIM.Converter" AllowsTransparency="True" WindowStyle="None" Background="Transparent"
+        mc:Ignorable="d" MouseLeftButtonDown="Window_MouseLeftButtonDown" Closing="Window_Closing"
+        Title="群文件共享" Height="500" Width="800" >
+    <!--时间戳转日期-->
+    <Window.Resources>
+        <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="BorderThickness" Value="0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <convert:StampToDatetimeConerter x:Key="StampConerter" />
+        <convert:FileSizeConverter x:Key="FileSizeConerter" />
+        <convert:FileExistConverter x:Key="FileExistConerter" />
+        <convert:IsDownloadConverter x:Key="IsDownloadConverter" />
+        <convert:TotalNoReadCountConverter x:Key="TotalNoReadConverter" />
+    </Window.Resources>
+    <Border Margin="15" CornerRadius="4" Background="#FFF">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="0.2" Color="Black"  Opacity="0.2" BlurRadius="20"/>
+        </Border.Effect>
+        <Grid x:Name="gd_main">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <materialDesign:DialogHost Visibility="Visible"  Panel.ZIndex="99" Grid.RowSpan="3"
+                                  x:Name="dlg_Edit" IsOpen="{Binding IsOpen}" ClipToBounds="True">
+                <materialDesign:DialogHost.DialogContent >
+                    <!--Dialog中的卡片-->
+                    <materialDesign:Card  >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Calendar x:Name="cld_date" DisplayMode="Month"
+                  SelectionMode="SingleDate" SelectedDate="{Binding selectDate,Mode=OneWayToSource}" IsTodayHighlighted="True"/>
+                            <StackPanel
+					Grid.Row="1"
+					Margin="8"
+					HorizontalAlignment="Right"
+					Orientation="Horizontal">
+                                <Button
+						Command="{Binding getDateSearch}"
+						CommandParameter="1"
+						Style="{DynamicResource MaterialDesignFlatButton}">
+                                    查找
+                                </Button>
+                                <Button 
+                        Command="{Binding DialogHostHiden}"
+						CommandParameter="0"
+						Style="{StaticResource MaterialDesignFlatButton}">
+                                    取消
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </materialDesign:Card>
+                </materialDesign:DialogHost.DialogContent>
+            </materialDesign:DialogHost>
+            <Grid Margin="0,20,0,0">
+                <!--<Button Command="{Binding DialogHostShow}" Margin="10,3" VerticalAlignment="Center" HorizontalAlignment="Left">选择日期</Button>-->
+                <Button Command="{Binding UpdateShare}" Margin="10,3" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="{Binding AllowUploadFile,Converter={StaticResource BoolToVisiblityConverter}}">
+                    <materialDesign:Badged 
+                                        VerticalAlignment="Top" HorizontalAlignment="Right" 
+                                        Foreground="White" BadgeBackground="Red" BadgeForeground="White" 
+                                        Badge="{Binding uploadList.Count, Converter={StaticResource TotalNoReadConverter}}"   >
+                        <TextBlock >上传文件</TextBlock>
+                    </materialDesign:Badged>
+                    <Button.ToolTip>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Background="White">
+                            <ListView  BorderThickness="0" materialDesign:RippleAssist.IsDisabled="True" HorizontalContentAlignment="Stretch" ItemsSource="{Binding uploadList}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="150"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" HorizontalAlignment="Left" Text="{Binding name}"></TextBlock>
+                                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Text="{Binding progress}"></TextBlock>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </ScrollViewer>
+                    </Button.ToolTip>
+                </Button>
+            </Grid>
+            <DataGrid Grid.Row="1" x:Name="listView" 
+                      ItemsSource="{Binding ShareList}"  
+                      AutoGenerateColumns="False" 
+                      IsReadOnly="True">
+                <DataGrid.CellStyle>
+                    <Style TargetType="{x:Type DataGridCell}" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected"  Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.CellStyle>
+                <!--<DataGrid.RowStyle>
+                    <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected"  Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver"  Value="True">
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>-->
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="文件" Binding="{Binding name}"  />
+                    <DataGridTextColumn Header="更新时间" Binding="{Binding time,Converter={StaticResource StampConerter}}" />
+                    <DataGridTextColumn Header="大小" Binding="{Binding size,Converter={StaticResource FileSizeConerter}}" />
+                    <DataGridTextColumn Header="上传者" Binding="{Binding nickname}"  />
+                    <!--<DataGridTemplateColumn Header="" CellTemplate="{StaticResource filePathDt}"></DataGridTemplateColumn>-->
+                    <DataGridTemplateColumn Header="操作" CanUserReorder="True"  >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                <Button Style="{StaticResource MaterialDesignToolForegroundButton}" 
+                                        materialDesign:RippleAssist.IsCentered="True"
+                                        materialDesign:RippleAssist.RippleSizeMultiplier="0.75"
+                                        Height="32" Margin="0"  
+                                        CommandParameter="{Binding detial}" 
+                                        Command="{Binding Path=DataContext.OpenFilePath,
+                                            RelativeSource={RelativeSource Mode=FindAncestor, 
+                                                    AncestorType=DataGrid}}" >
+                                    <Grid>
+                                        <Label Padding="0" Content="{Binding progress}"></Label>
+                                        <materialDesign:PackIcon Width="25" Height="25" Visibility="{Binding progress,Converter={StaticResource IsDownloadConverter}}"
+                                            Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
+                                            Kind="{Binding filePath,Converter={StaticResource FileExistConerter}}" />
+                                    </Grid>
+                                </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="" CanUserReorder="True"  >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Button Style="{StaticResource MaterialDesignToolForegroundButton}" 
+                                        materialDesign:RippleAssist.IsCentered="True"
+                                        materialDesign:RippleAssist.RippleSizeMultiplier="0.75"
+                                        Height="32" Margin="0"  
+                                        CommandParameter="{Binding detial}" 
+                                        Command="{Binding Path=DataContext.DelFileCommand,
+                                            RelativeSource={RelativeSource Mode=FindAncestor, 
+                                                    AncestorType=DataGrid}}" >
+                                        <materialDesign:PackIcon Width="25" Height="25" Visibility="{Binding AllowDel,Converter={StaticResource BoolToVisiblityConverter}}"
+                                            Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
+                                            Kind="Delete" />
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <!--
+            <Grid Grid.Row="2" >
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+                    <Button ToolTip="首页" Style="{StaticResource MaterialDesignFlatButton}" materialDesign:RippleAssist.IsCentered="True" Command="{Binding HomePage}">
+                        <materialDesign:PackIcon Kind="PageFirst" />
+                    </Button>
+                    <Button ToolTip="上一页" Style="{StaticResource MaterialDesignFlatButton}" materialDesign:RippleAssist.IsCentered="True" Command="{Binding PreviousPage}">
+                        <materialDesign:PackIcon Kind="ChevronLeft" />
+                    </Button>
+                    <Button ToolTip="下一页" Style="{StaticResource MaterialDesignFlatButton}" materialDesign:RippleAssist.IsCentered="True" Command="{Binding NextPage}">
+                        <materialDesign:PackIcon Kind="ChevronRight" />
+                    </Button>
+                    <Button ToolTip="末页" Style="{StaticResource MaterialDesignFlatButton}" materialDesign:RippleAssist.IsCentered="True" Command="{Binding LastPage}">
+                        <materialDesign:PackIcon Kind="PageLast" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+            -->
+            <materialDesign:Snackbar 
+                Grid.Row="1" Grid.RowSpan="2" 
+                HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16 0 0 0"
+                MessageQueue="{Binding Snackbar}" />
+        </Grid>
+    </Border>
+</Window>

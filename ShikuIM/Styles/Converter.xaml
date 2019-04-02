@@ -1,0 +1,84 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:convert="clr-namespace:ShikuIM.Converter"
+    xmlns:local="clr-namespace:ShikuIM.Styles">
+
+    <!--  戳一戳消息类型  -->
+    <convert:PokeToUriConverter x:Key="PokeToUriConverter" />
+    <!--  Bool反转  -->
+    <convert:BoolReverseConverter x:Key="BoolReverseConverter" />
+    <!--  Bool转Int  -->
+    <convert:BoolToIntConverter x:Key="BoolToIntConverter" />
+    <!--  是否为空控制显示  -->
+    <convert:FilePathToTextConverter x:Key="FilePathToTextConverter" />
+    <!--  是否为空控制显示  -->
+    <convert:IsNullToVisibilityConverter x:Key="IsNullToVisibilityConverter" />
+    <!--  消息项内容部分转换器  -->
+    <convert:MessageToItemContentConverter x:Key="MsgToItemContentConverter" />
+    <!--  消息项内容部分转换器  -->
+    <convert:MessageToMsgConverter x:Key="MsgToFixedConverter" />
+    <!--  Gif文件名转绝对路径  -->
+    <convert:GifMsgToUriConverter x:Key="GifMsgToUriConverter" />
+    <!--  文件类型转为文本  -->
+    <convert:FileTypeToTextConverter x:Key="FileTypeToTextConverter" />
+    <!--  字符转颜色  -->
+    <convert:StringRGBToBrushConverter x:Key="StringRGBToBrushConverter" />
+    <!--  文件类型转图标  -->
+    <convert:FileTypeToIconConverter x:Key="FileTypeToIconConverter" />
+    <!--  语音/视频消息转图标  -->
+    <convert:CallMsgToIconConverter x:Key="CallMsgToIconConverter" />
+    <!--  语音/视频消息转文字  -->
+    <convert:CallMsgToDisplayConverter x:Key="CallMsgToDisplayConverter" />
+    <!--  根据IsMySend判断是否为自己发送  -->
+    <convert:IsMySendToHorizontalAlignmentConverter x:Key="IsMySendToAlignmentConverter" />
+    <!--  根据是否是自己发送标志设置背景颜色  -->
+    <convert:SendByMeColorConverter x:Key="SendByMeColorConverter" />
+    <!--  时间转为友好的时间  -->
+    <convert:TimeToDisplayConverter x:Key="TimeToDisplayConverter" />
+    <!--  消息撤回项显示  -->
+    <convert:WithDrawVisiblityConverter x:Key="WithDrawVisiblityConverter" />
+    <!--  IsMySend控制显示隐藏  -->
+    <convert:MsgToGroupControlVisiblityConverter x:Key="MsgToGroupControlVisiblityConverter" />
+    <!--  IsMySend控制显示隐藏  -->
+    <convert:IsMySendToVisiblityConverter x:Key="IsMySendToVisiblityConverter" />
+    <!--  未读数量  -->
+    <convert:NoReadCountConverter x:Key="NoticeCountConverter" />
+    <!--  值相等转显示  -->
+    <convert:EqualsToVisibilityConverter x:Key="EqualsToVisibilityConverter" />
+    <!--  消息项内容是否显示  -->
+    <convert:ItemContentVisibleConverter x:Key="ItemContentToVisibleConverter" />
+    <!--  时间戳转日期  -->
+    <convert:TimeStampToDateTimeConverter x:Key="StampDate" />
+    <!--  性别转换器  -->
+    <convert:GenderConverter x:Key="GenderConverter" />
+    <!--  性别转换器  -->
+    <convert:GenderToTextConverter x:Key="GenderToTextConverter" />
+    <!--  角标转换器  -->
+    <convert:BandgeVisibleConverter x:Key="BandgeVisibleConverter" />
+    <!--  群组权限转换器  -->
+    <convert:GroupAccessConverter x:Key="GroupAccessConverter" />
+    <!--  布尔值转隐藏和显示  -->
+    <convert:BoolToVisiblityConverter x:Key="BoolToVisiblityConverter" />
+    <!--  显示已读人数  -->
+    <convert:ShowReadConverter x:Key="ShowReadConverter" />
+    <!--  int转Bool  -->
+    <convert:IntToBoolConverter x:Key="IntToBoolConverter" />
+    <!--  群二维码  -->
+    <convert:QRCodeConverter x:Key="QRCodeConverter" />
+    <!--  追加字符串  -->
+    <convert:AppendTextConverter x:Key="AppendTxtConverter" />
+    <!--  插入字符串  -->
+    <convert:InsertTextConverter x:Key="InsertTxtConverter" />
+    <!--  地区转换器  -->
+    <convert:AreaConverter x:Key="AreaConverter" />
+    <!--  是否显示发送消息按钮  -->
+    <convert:DetailSendConverter x:Key="DetailSendConverter" />
+    <!--  备注名转化器  -->
+    <convert:AccountNicknameConverter x:Key="RemarkNameConverter" />
+    <!--  UserId转图片(图片压缩)  -->
+    <convert:UserIdToPathConverter x:Key="UserIdToPathConverter" />
+    <!--  路径转图片  -->
+    <convert:LocalUrlToImageConverter x:Key="LocalUrlToImageConverter" />
+</ResourceDictionary>
+    

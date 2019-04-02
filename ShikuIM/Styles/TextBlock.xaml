@@ -1,0 +1,25 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:ShikuIM.Styles">
+
+
+
+    <!--可选中的文本-->
+    <Style x:Key="SelectableTextBlock" TargetType="{x:Type TextBlock}" >
+        <Style.Setters>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"  />
+            <Setter Property="Language" Value="zh-CN" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryHueLightForegroundBrush}" />
+            <!--<Setter Property="materialDesign:TextFieldAssist.DecorationVisibility" Value="Collapsed" />-->
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+            <Setter Property="TextOptions.TextHintingMode" Value="Animated" />
+        </Style.Setters>
+    </Style>
+    
+    
+    
+</ResourceDictionary>

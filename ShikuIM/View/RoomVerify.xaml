@@ -1,0 +1,161 @@
+﻿<Window
+    x:Class="ShikuIM.View.RoomVerifyForm"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ShikuIM.View"
+    xmlns:localbase="clr-namespace:ShikuIM"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:usercontrols="clr-namespace:ShikuIM.UserControls"
+    Title="RoomVerify"
+    Width="400"
+    Height="600"
+    AllowsTransparency="True"
+    Background="Transparent"
+    KeyDown="Window_KeyDown"
+    MouseLeftButtonDown="Window_MouseLeftButtonDown"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource WindowOnLoad}" />
+        </EventTrigger>
+    </Window.Triggers>
+    <Border
+        Margin="15"
+        Background="#FFF"
+        CornerRadius="4"
+        Effect="{StaticResource WindowShadow}">
+        <Grid x:Name="gd_main">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel>
+                <!--  头像  -->
+                <Ellipse
+                    Grid.ColumnSpan="3"
+                    Width="90"
+                    Height="90"
+                    Margin="10,30,10,10"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    RenderOptions.BitmapScalingMode="HighQuality">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="{Binding Friend.userId, Converter={StaticResource UserIdToPathConverter}}" />
+                    </Ellipse.Fill>
+                    <Ellipse.Effect>
+                        <DropShadowEffect
+                            BlurRadius="4"
+                            Opacity="0.7"
+                            ShadowDepth="0.4"
+                            Color="Black" />
+                    </Ellipse.Effect>
+                </Ellipse>
+                <!--  昵称  -->
+                <TextBlock
+                    Margin="5"
+                    HorizontalAlignment="Center"
+                    FontSize="15"
+                    Text="{Binding Friend.nickname}"
+                    TextTrimming="CharacterEllipsis" />
+                <!--    -->
+                <TextBlock
+                    Margin="5"
+                    HorizontalAlignment="Center"
+                    FontSize="12"
+                    Text="{Binding InviteText}"
+                    TextTrimming="CharacterEllipsis" />
+                <!--  验证消息  -->
+                <TextBlock
+                    Margin="5"
+                    HorizontalAlignment="Center"
+                    FontSize="12"
+                    Text="{Binding Reason}"
+                    TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <Rectangle
+                Height="0.5"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Fill="LightGray" />
+            <ScrollViewer
+                Grid.Row="1"
+                Margin="0,8,0,0"
+                HorizontalContentAlignment="Stretch"
+                VerticalContentAlignment="Stretch"
+                VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="itemsControl" ItemsSource="{Binding Path=MembersList}">
+                    <ItemsControl.ItemTemplate>
+                        <!--  群成员样式  -->
+                        <DataTemplate>
+                            <Border
+                                x:Name="button"
+                                Width="64"
+                                Margin="0"
+                                Padding="0"
+                                HorizontalAlignment="Stretch"
+                                CornerRadius="8">
+                                <Grid Height="80">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="3*" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <!--  头像  -->
+                                    <Ellipse
+                                        x:Name="ellipse"
+                                        Width="40"
+                                        Height="40"
+                                        Margin="4,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Panel.ZIndex="3"
+                                        RenderOptions.BitmapScalingMode="HighQuality"
+                                        Tag="{Binding userId}">
+                                        <Ellipse.Fill>
+                                            <ImageBrush ImageSource="{Binding userId, Converter={StaticResource UserIdToPathConverter}}" />
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <!--  昵称  -->
+                                    <TextBlock
+                                        Grid.Row="1"
+                                        MaxWidth="56"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        Text="{Binding nickname}"
+                                        TextTrimming="CharacterEllipsis"
+                                        ToolTip="{Binding nickname}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.Resources>
+                        <!--  取消默认聚焦样式  -->
+                        <Style TargetType="Control">
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                        </Style>
+                    </ItemsControl.Resources>
+                    <!--  使用自动换行面板  -->
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel VerticalAlignment="Stretch" Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+            <Button
+                Grid.Row="2"
+                Width="100"
+                Height="30"
+                Margin="0,30"
+                VerticalAlignment="Bottom"
+                Command="{Binding AgreeInvitation}"
+                Content="{Binding BtnContent}"
+                IsEnabled="{Binding BtnIsEnable}" />
+        </Grid>
+    </Border>
+</Window>

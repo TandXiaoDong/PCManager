@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="ShikuIM.AsyncFileControl" 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ShikuIM" 
+             xmlns:materialdesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             mc:Ignorable="d" 
+             Padding="0"
+             TextOptions.TextFormattingMode="Display" 
+             TextOptions.TextRenderingMode="ClearType" 
+             >
+    <materialdesign:Transitioner x:Name="page"  SelectedIndex="0" >
+        <!--加载控件-->
+        <materialdesign:TransitionerSlide>
+            <materialdesign:TransitionerSlide.ForwardWipe>
+                <materialdesign:CircleWipe />
+            </materialdesign:TransitionerSlide.ForwardWipe>
+            <materialdesign:TransitionerSlide.BackwardWipe>
+                <materialdesign:CircleWipe />
+            </materialdesign:TransitionerSlide.BackwardWipe>
+            <Border Width="64" Height="64" CornerRadius="{Binding RelativeSource={RelativeSource self},Path=ActualWidth}"
+                            Background="{DynamicResource MaterialDesignSelection}" >
+                <Grid>
+                    <ProgressBar 
+                            x:Name="FileProgress"
+                            Width="56" Height="56" Foreground="{DynamicResource MaterialDesignTextBoxBorder}"
+                            Style="{DynamicResource MaterialDesignCircularProgressBar}" 
+                            IsIndeterminate="True" />
+                    <Button 
+                        Style="{DynamicResource MaterialDesignToolButton}" IsEnabled="False"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" 
+                        Padding="0" Click="DownliadCommand" >
+                        <materialdesign:PackIcon 
+                            VerticalAlignment="Center" HorizontalAlignment="Center" 
+                            Width="40" Height="40" Foreground="{DynamicResource MaterialDesignTextBoxBorder}" 
+                            Kind="Download" />
+                    </Button>
+                </Grid>
+            </Border>
+        </materialdesign:TransitionerSlide>
+        <!--真实图片-->
+        <materialdesign:TransitionerSlide>
+            <materialdesign:TransitionerSlide.ForwardWipe>
+                <materialdesign:CircleWipe />
+            </materialdesign:TransitionerSlide.ForwardWipe>
+            <materialdesign:TransitionerSlide.BackwardWipe>
+                <materialdesign:CircleWipe />
+            </materialdesign:TransitionerSlide.BackwardWipe>
+            <Border Width="64" Height="64" CornerRadius="{Binding RelativeSource={RelativeSource self},Path=ActualWidth}"
+                            Background="{DynamicResource MaterialDesignSelection}" 
+                            >
+                <Button Width="48" Height="48" Focusable="False"
+                        Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                        VerticalAlignment="Center" HorizontalAlignment="Center" 
+                        materialdesign:RippleAssist.IsCentered="True"
+                        materialdesign:RippleAssist.ClipToBounds="False"
+                        materialdesign:RippleAssist.RippleSizeMultiplier="0.75"
+                        Padding="0" ToolTip="打开文件夹" Click="OpenDirectoryCommand" >
+                    <materialdesign:PackIcon 
+                            VerticalAlignment="Center" HorizontalAlignment="Center"
+                            Width="40" Height="40" Foreground="{DynamicResource MaterialDesignTextBoxBorder}" 
+                            Kind="{Binding fileName,Converter={StaticResource FileTypeToIconConverter}}"  />
+                </Button>
+            </Border>
+        </materialdesign:TransitionerSlide>
+    </materialdesign:Transitioner>
+</UserControl>

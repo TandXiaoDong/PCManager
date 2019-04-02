@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:ShikuIM.Styles">
+
+
+    <!--Shadow of Avator-->
+    <DropShadowEffect x:Key="MaterialDesignAvatorShadow" ShadowDepth="0.4" Color="Black" Opacity="0.4" BlurRadius="3"/>
+
+    <!--Shadow of Window-->
+    <DropShadowEffect x:Key="WindowShadow" ShadowDepth="0.5" Color="Gray" Opacity="0.4" BlurRadius="8" />
+
+</ResourceDictionary>

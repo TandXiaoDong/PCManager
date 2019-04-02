@@ -1,0 +1,1544 @@
+﻿<Window
+    x:Class="ShikuIM.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:command="http://www.galasoft.ch/mvvmlight"
+    xmlns:convert="clr-namespace:ShikuIM.Converter" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dragablz="http://dragablz.net/winfx/xaml/dragablz" xmlns:gif="clr-namespace:XamlAnimatedGif;assembly=XamlAnimatedGif"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:local="clr-namespace:ShikuIM"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:ShikuIM.Model" xmlns:selector="clr-namespace:ShikuIM.Selector"
+    xmlns:view="clr-namespace:ShikuIM.View" xmlns:viewmodel="clr-namespace:ShikuIM.ViewModel"
+    xmlns:vlc="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf" x:Name="window"
+    Title="微微IM" Width="840"
+    Height="560" MinWidth="840"
+    MinHeight="560" Padding="0"
+    AllowsTransparency="True" Closing="Window_Closing"
+    DataContext="{Binding Source={StaticResource Locator}, Path=Main}"
+    Icon="../icon/weiwei.png" Loaded="window_Loaded"
+    StateChanged="Window_StateChanged" WindowStartupLocation="CenterScreen"
+    WindowStyle="None" mc:Ignorable="d"
+    Closed="OnMainWindowClose">
+    <Window.Resources>
+        <ResourceDictionary>
+            <convert:TotalNoReadCountConverter x:Key="TotalNoReadConverter" />
+            <convert:ChatTypeDisplayConverter x:Key="ChatPageSwitchConverter" />
+            <!--  居中按钮样式  -->
+            <Style
+                x:Key="EmptyButtonStyle"
+                BasedOn="{StaticResource MaterialDesignToolForegroundButton}"
+                TargetType="Button">
+                <!--<Setter Property="Padding" Value="0"/>-->
+                <Setter Property="materialDesign:RippleAssist.IsDisabled" Value="True" />
+                <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality" />
+                <Setter Property="materialDesign:RippleAssist.IsCentered" Value="True" />
+                <Setter Property="materialDesign:RippleAssist.RippleSizeMultiplier" Value="0.5" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <ContentPresenter
+                                x:Name="content" HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" Opacity="1">
+                                <ContentPresenter.Triggers>
+                                    <EventTrigger RoutedEvent="MouseEnter" SourceName="content">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="content" Storyboard.TargetProperty="Opacity"
+                                                    To="0.3" Duration="00:00:00.05" />
+                                                <!--<EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="205"/>-->
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="MouseLeave" SourceName="content">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="content" Storyboard.TargetProperty="Opacity"
+                                                    To="1" Duration="00:00:00.05" />
+                                                <!--<EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="205"/>-->
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </ContentPresenter.Triggers>
+                            </ContentPresenter>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!--  无点击反馈ListBoxItem  -->
+            <Style
+                x:Key="NoRippleListBoxItem"
+                BasedOn="{StaticResource MaterialDesignListBoxItem}"
+                TargetType="ListBoxItem">
+                <Style.Setters>
+                    <Setter Property="Padding" Value="0" />
+                    <!--<Setter Property="materialDesign:RippleAssist.Feedback" Value="#F7F7F7" /> it doesn't work  -->
+                    <Setter Property="materialDesign:RippleAssist.IsDisabled" Value="True" />
+                    <Setter Property="Height" Value="56" />
+                </Style.Setters>
+            </Style>
+            <!--#region 自定义窗口样式-->
+            <Style TargetType="{x:Type local:MainWindow}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Window">
+                            <Border
+                                Margin="8" Padding="8"
+                                CornerRadius="4"
+                                Effect="{StaticResource WindowShadow}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="56" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel
+                                        Grid.Column="3" HorizontalAlignment="Right"
+                                        VerticalAlignment="Top" Panel.ZIndex="5"
+                                        Orientation="Horizontal">
+                                        <!--  窗口操作按钮  -->
+                                        <!--  Min Button  -->
+                                        <Button
+                                            Width="36" Height="32"
+                                            Margin="0" Padding="0"
+                                            HorizontalAlignment="Right" materialDesign:RippleAssist.ClipToBounds="True"
+                                            materialDesign:RippleAssist.IsCentered="True"
+                                            Command="{Binding MinCommand}"
+                                            Content="{materialDesign:PackIcon Kind=Minus,
+                                                                              Size=18}"
+                                            Cursor="Hand" Focusable="False"
+                                            Foreground="#909090"
+                                            Style="{StaticResource MaterialDesignToolForegroundButton}"
+                                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                                        <!--  Maxwindow Button  -->
+                                        <Button
+                                            Width="36" Height="32"
+                                            Margin="0" Padding="0"
+                                            HorizontalAlignment="Right" materialDesign:RippleAssist.ClipToBounds="True"
+                                            materialDesign:RippleAssist.IsCentered="True"
+                                            Command="{Binding MaxCommand}"
+                                            Content="{materialDesign:PackIcon Kind=WindowMaximize,
+                                                                              Size=18}"
+                                            Cursor="Hand" Focusable="False"
+                                            Foreground="#909090"
+                                            Style="{StaticResource MaterialDesignToolForegroundButton}"
+                                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                                        <!--  Close Button  -->
+                                        <Button
+                                            x:Name="btn_close" Width="36"
+                                            Height="32" Margin="0"
+                                            Padding="0" HorizontalAlignment="Right"
+                                            materialDesign:RippleAssist.ClipToBounds="True" materialDesign:RippleAssist.IsCentered="True"
+                                            Command="{Binding CloseCommand}"
+                                            Content="{materialDesign:PackIcon Kind=Close,
+                                                                              Size=18}"
+                                            Cursor="Hand" Focusable="False"
+                                            Foreground="#909090"
+                                            Style="{StaticResource MaterialDesignToolForegroundButton}"
+                                            WindowChrome.IsHitTestVisibleInChrome="True" />
+                                    </StackPanel>
+                                    <!--  窗体内容  -->
+                                    <ContentPresenter
+                                        Grid.Row="0" Grid.RowSpan="2"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        KeyboardNavigation.TabNavigation="Cycle" />
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!--#endregion-->
+            <!--#region 动画故事板-->
+            <Storyboard x:Key="OnMouseEnter1">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="mbtn_Setting" Storyboard.TargetProperty="(UIElement.Opacity)">
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="0.7" />
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Storyboard x:Key="OnMouseLeave1">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="mbtn_Setting" Storyboard.TargetProperty="(UIElement.Opacity)">
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1" />
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <!--#region 表情显示隐藏动画-->
+            <Storyboard x:Key="EmojiLoadAnimation">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="emojiView" Storyboard.TargetProperty="(FrameworkElement.Width)">
+                    <EasingDoubleKeyFrame KeyTime="0" Value="400" />
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="465">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <CircleEase EasingMode="EaseOut" />
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="emojiView" Storyboard.TargetProperty="(FrameworkElement.Height)">
+                    <EasingDoubleKeyFrame KeyTime="0" Value="180" />
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="225">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <CircleEase EasingMode="EaseOut" />
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="emojiView" Storyboard.TargetProperty="(UIElement.Opacity)">
+                    <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <PowerEase EasingMode="EaseOut" />
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Storyboard x:Key="EmojiLostfocus">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="emojiView" Storyboard.TargetProperty="(FrameworkElement.Width)">
+                    <EasingDoubleKeyFrame KeyTime="0" Value="465">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <CircleEase EasingMode="EaseOut" />
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.9" Value="0" />
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="emojiView" Storyboard.TargetProperty="(FrameworkElement.Height)">
+                    <EasingDoubleKeyFrame KeyTime="0" Value="225">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <CircleEase EasingMode="EaseOut" />
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.9" Value="0" />
+                </DoubleAnimationUsingKeyFrames>
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetName="emojiView" Storyboard.TargetProperty="(UIElement.Opacity)">
+                    <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0">
+                        <EasingDoubleKeyFrame.EasingFunction>
+                            <PowerEase EasingMode="EaseOut" />
+                        </EasingDoubleKeyFrame.EasingFunction>
+                    </EasingDoubleKeyFrame>
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <!--#endregion-->
+            <!--#endregion-->
+            <!--#endregion-->
+
+            <!--#region 发送名片列表对话框模板(列表需延迟加载)-->
+            <Border
+                x:Key="DialogContactCard" MinHeight="280"
+                MaxHeight="448"
+                DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32" />
+                        <RowDefinition Height="24" />
+                        <RowDefinition Height="24" />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Border
+                        Grid.RowSpan="2" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Background="{DynamicResource PrimaryHueLightBrush}">
+                        <Border.Effect>
+                            <DropShadowEffect
+                                BlurRadius="16" Direction="90"
+                                Color="{DynamicResource MaterialDesignShadow}" />
+                        </Border.Effect>
+                        <StackPanel
+                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                            Orientation="Horizontal">
+                            <!--  关闭  -->
+                            <Button
+                                Width="36" Height="36"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                materialDesign:RippleAssist.Feedback="#FFFFFFEE" materialDesign:RippleAssist.IsCentered="True"
+                                materialDesign:RippleAssist.RippleSizeMultiplier="0.75"
+                                Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                Content="{materialDesign:PackIcon Kind=ArrowLeft,
+                                                                  Size=24}"
+                                Style="{StaticResource MaterialDesignToolButton}" />
+                            <TextBlock
+                                Margin="8" HorizontalAlignment="Left"
+                                VerticalAlignment="Center" FontFamily="微软雅黑"
+                                Style="{DynamicResource MaterialDesignTitleTextBlock}"
+                                Text="选择联系人" />
+                        </StackPanel>
+                    </Border>
+                    <!--  名片列表  -->
+                    <materialDesign:Card
+                        Grid.Row="2" Grid.RowSpan="8"
+                        Height="auto" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" materialDesign:ColorZoneAssist.Mode="Light">
+                        <ListBox
+                            x:Name="SelectedContact" MinWidth="336"
+                            Margin="0,0,0,0" HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            ItemsSource="{Binding DialogContacts}"
+                            SelectionMode="Multiple">
+                            <i:Interaction.Behaviors>
+                                <local:ListBoxSelectionBehavior SelectedItems="{Binding SelectedContacts, Mode=TwoWay}" />
+                            </i:Interaction.Behaviors>
+                            <!--<i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged" >
+                                        <command:EventToCommand
+                                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow},Path=Contact.SelectedItems}"
+                                            Command="{Binding SelectedContactCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            -->
+                            <ListBox.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource MemberListBoxItemStyle}" TargetType="ListBoxItem">
+                                    <Style.Setters>
+                                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                        <!--<Setter Property="IsSelected" Value="{Binding  }" />-->
+                                    </Style.Setters>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </materialDesign:Card>
+                    <Button
+                        Grid.Row="1" Grid.RowSpan="2"
+                        Margin="16,0" HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Command="{Binding DialogSendCommand}"
+                        CommandParameter="{Binding}"
+                        Content="{materialDesign:PackIcon Kind=Send,
+                                                          Size=20}"
+                        Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"
+                        ToolTip="发送" />
+                </Grid>
+            </Border>
+            <!--#endregion-->
+
+            <!--#region 发红包模板-->
+            
+            <!--#endregion-->
+        </ResourceDictionary>
+    </Window.Resources>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="48" ResizeBorderThickness="8" />
+    </WindowChrome.WindowChrome>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource WindowOnLoad}" />
+        </EventTrigger>
+        <EventTrigger RoutedEvent="FrameworkElement.GotFocus" SourceName="emojiView">
+            <BeginStoryboard Storyboard="{StaticResource EmojiLoadAnimation}" />
+        </EventTrigger>
+        <EventTrigger RoutedEvent="UIElement.LostFocus" SourceName="emojiView">
+            <BeginStoryboard Storyboard="{StaticResource EmojiLostfocus}" />
+        </EventTrigger>
+        <EventTrigger RoutedEvent="UIElement.MouseLeave" SourceName="mbtn_Setting">
+            <BeginStoryboard x:Name="OnMouseLeave1_BeginStoryboard" Storyboard="{StaticResource OnMouseLeave1}" />
+        </EventTrigger>
+        <EventTrigger RoutedEvent="UIElement.MouseEnter" SourceName="mbtn_Setting">
+            <BeginStoryboard x:Name="OnMouseEnter1_BeginStoryboard" Storyboard="{StaticResource OnMouseEnter1}" />
+        </EventTrigger>
+    </Window.Triggers>
+    <!--  对话框主体  -->
+    <materialDesign:DialogHost CloseOnClickAway="True">
+        <Grid MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="72" />
+                <!--  两列, 3:7布局  -->
+                <ColumnDefinition
+                    Width="{Binding WindowLeftWidth, Mode=TwoWay}"
+                    MinWidth="168" MaxWidth="400" />
+                <ColumnDefinition Width="*" MinWidth="400" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="56" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <!--  搜索和+号  -->
+            <Grid
+                Grid.Column="1" HorizontalAlignment="Stretch"
+                Background="{DynamicResource MaterialDesignBackground}">
+                <!--  标题  -->
+                <TextBlock
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    FontSize="22" FontWeight="Normal"
+                    RenderOptions.BitmapScalingMode="HighQuality"
+                    Style="{DynamicResource MaterialDesignHeadlineTextBlock}"
+                    Text="{Binding ElementName=TabPageSelector, Path=SelectedItem.Tag}" />
+                <!--  创建群聊按钮  -->
+                <Button
+                    x:Name="btn_Add" Width="40"
+                    Height="40" Margin="8,0"
+                    HorizontalAlignment="Right" materialDesign:RippleAssist.IsDisabled="True"
+                    Background="#00000000"
+                    Command="{Binding MainAddCommand}"
+                    Focusable="False"
+                    Style="{StaticResource MaterialDesignToolButton}"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+                    <materialDesign:PackIcon
+                        Width="32" Height="32"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Kind="Plus" />
+                </Button>
+            </Grid>
+            <!--  WindowContent  -->
+            <Grid
+                Grid.Row="0" Grid.RowSpan="2"
+                Margin="0,0,0,0"
+                Background="{StaticResource ShikuDarkBackgroundBrush}"
+                Opacity="1">
+                <StackPanel VerticalAlignment="Top">
+                    <!--  头像和在线状态  -->
+                    <Grid
+                        Width="72" Height="64"
+                        VerticalAlignment="Top"
+                        Background="{DynamicResource ShikuDarkBackgroundBrush}"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Button
+                            Width="auto" Height="auto"
+                            Margin="0,12,0,0" Padding="0"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                            materialDesign:RippleAssist.ClipToBounds="True" materialDesign:RippleAssist.IsCentered="True"
+                            materialDesign:RippleAssist.RippleSizeMultiplier="0.75"
+                            Command="{Binding UserDetailCommand}"
+                            CommandParameter="{Binding Me.userId}"
+                            FocusVisualStyle="{x:Null}"
+                            Style="{StaticResource MaterialDesignToolForegroundButton}">
+                            <Ellipse
+                                Width="48" Height="48"
+                                Margin="0,0,0,0" VerticalAlignment="Top"
+                                RenderOptions.BitmapScalingMode="HighQuality"
+                                ToolTip="{Binding ElementName=status_els, Path=ToolTip}">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="{Binding Me.userId, Converter={StaticResource UserIdToPathConverter}}" />
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Button>
+                        <!--  当前登录用户在线状态  -->
+                        <Ellipse
+                            x:Name="status_els" Width="18"
+                            Height="18" Margin="0,0,4,0"
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                            Panel.ZIndex="9" Cursor="Hand"
+                            Fill="{Binding AccountStateFill}"
+                            ToolTip="{Binding AccountStateText}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown">
+                                    <command:EventToCommand Command="{Binding ReConnectionXmpp}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Ellipse>
+                    </Grid>
+                    <!--  侧边菜单栏  -->
+                    <!--  当前登录用户昵称  -->
+                    <Button
+                        Grid.Column="0" Margin="0"
+                        Padding="0" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" materialDesign:RippleAssist.ClipToBounds="True"
+                        materialDesign:RippleAssist.IsCentered="True" materialDesign:RippleAssist.RippleSizeMultiplier="0.5"
+                        Command="{Binding UserDetailCommand}"
+                        CommandParameter="{Binding Me.userId}"
+                        Focusable="False" FontSize="11.5"
+                        Foreground="White"
+                        Style="{StaticResource MaterialDesignToolForegroundButton}"
+                        ToolTip="{Binding Me.nickname}">
+                        <TextBlock
+                            Margin="2,0"
+                            Text="{Binding Me.nickname}"
+                            TextTrimming="CharacterEllipsis" />
+                    </Button>
+                    <!--  Slide Button  -->
+                    <ListBox
+                        x:Name="TabPageSelector" Grid.Row="1"
+                        Grid.Column="0" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" Background="Transparent"
+                        BorderThickness="0" Cursor="Hand"
+                        Foreground="#FFF" Opacity="1"
+                        SelectedIndex="{Binding MainTabSelectedIndex, FallbackValue=0}">
+                        <ListBoxItem
+                            Width="auto" Height="72"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                            materialDesign:RippleAssist.IsDisabled="True" Foreground="#FFF"
+                            Tag="消息">
+                            <!--  消息  -->
+                            <materialDesign:Badged
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Badge="{Binding TotalUnReadCount, Converter={StaticResource TotalNoReadConverter}}"
+                                BadgeBackground="Red" BadgeForeground="White"
+                                Foreground="White">
+                                <materialDesign:Badged.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Command="{Binding AllRecentUnReadCommand}" Header="全部标为已读" />
+                                    </ContextMenu>
+                                </materialDesign:Badged.ContextMenu>
+                                <Image
+                                    Width="35" Height="35"
+                                    Source="..\icon\Mbtn\msg.png" />
+                            </materialDesign:Badged>
+                        </ListBoxItem>
+                        <ListBoxItem
+                            Width="auto" Height="72"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                            materialDesign:RippleAssist.IsDisabled="True" Tag="好友">
+                            <materialDesign:Badged
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                BadgeBackground="Red" BadgeForeground="White"
+                                Foreground="White">
+                                <Image
+                                    Width="35" Height="35"
+                                    Source="..\icon\Mbtn\friend.png" />
+                            </materialDesign:Badged>
+                        </ListBoxItem>
+                        <ListBoxItem
+                            Width="auto" Height="72"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                            materialDesign:RippleAssist.IsDisabled="True" Tag="群组">
+                            <!--  消息  -->
+                            <materialDesign:Badged
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                BadgeBackground="Red" BadgeForeground="White"
+                                Foreground="White">
+                                <Image
+                                    Width="35" Height="35"
+                                    Source="..\icon\Mbtn\group.png" />
+                            </materialDesign:Badged>
+                        </ListBoxItem>
+                    </ListBox>
+                </StackPanel>
+                <!--  设置  -->
+                <Button
+                    x:Name="mbtn_Setting" Grid.ColumnSpan="2"
+                    Width="auto" Height="64"
+                    Margin="0" VerticalAlignment="Bottom"
+                    materialDesign:RippleAssist.IsCentered="True" materialDesign:RippleAssist.IsDisabled="True"
+                    materialDesign:RippleAssist.RippleSizeMultiplier="0.75"
+                    Command="{Binding SettingCommand}"
+                    Foreground="{DynamicResource SecondaryAccentBrush}"
+                    Opacity="1"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}">
+                    <materialDesign:PackIcon
+                        Width="36" Height="36"
+                        Kind="Settings" />
+                </Button>
+            </Grid>
+            <!--  左侧的边框(联系人和项列表)  -->
+            <Grid
+                Grid.Row="1" Grid.Column="1"
+                VerticalAlignment="Stretch"
+                Background="{DynamicResource MaterialDesignBackground}">
+                <!--  搜索框和指示框  -->
+                <!--  列表内容  -->
+                <materialDesign:Transitioner
+                    Grid.Row="1" HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch" AutoApplyTransitionOrigins="True"
+                    SelectedIndex="{Binding MainTabSelectedIndex, FallbackValue=0}">
+                    <!--  消息列表  -->
+                    <materialDesign:TransitionerSlide>
+                        <materialDesign:TransitionerSlide.ForwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.ForwardWipe>
+                        <materialDesign:TransitionerSlide.BackwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.BackwardWipe>
+                        <!--  消息列表  -->
+                        <ListBox
+                            BorderThickness="0"
+                            FocusVisualStyle="{StaticResource NullFocusStyle}"
+                            ItemTemplate="{StaticResource MessageItem}"
+                            ItemsSource="{Binding RecentMessageList}"
+                            SelectedIndex="{Binding MessageListSelectedIndex}"
+                            SelectionMode="Extended"
+                            Style="{StaticResource VirtualListBox}">
+                            <ListBox.ItemContainerStyle>
+                                <!--  此处继承自MaterialDesign的样式  -->
+                                <Style BasedOn="{StaticResource NoRippleListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                    <Style.Setters>
+                                        <Setter Property="materialDesign:RippleAssist.Feedback" Value="{DynamicResource MaterialDesignDivider}" />
+                                        <!--<Setter Property="HorizontalAlignment" Value="Stretch" />-->
+                                        <!--<EventSetter Event="Selected" Handler="OnListViewItemSelected" />-->
+                                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                        <Setter Property="Padding" Value="0" />
+                                        <Setter Property="ContextMenu">
+                                            <Setter.Value>
+                                                <ContextMenu DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+                                                    <MenuItem Command="{Binding MsgItemDeleteCommand}" Header="删除" />
+                                                    <!--  Icon="{materialDesign:PackIcon Kind=DeleteSweep}"  -->
+                                                </ContextMenu>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style.Setters>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </materialDesign:TransitionerSlide>
+                    <!--  好友列表  -->
+                    <materialDesign:TransitionerSlide>
+                        <materialDesign:TransitionerSlide.ForwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.ForwardWipe>
+                        <materialDesign:TransitionerSlide.BackwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.BackwardWipe>
+                        <TabControl
+                            BorderThickness="0"
+                            ItemContainerStyle="{DynamicResource AboutTabItemStyle}"
+                            SelectedIndex="{Binding FriendTypeIndex}"
+                            Style="{StaticResource AboutTabControlStyle}">
+                            <!--<dragablz:TabablzControl.InterTabController>
+                            <dragablz:InterTabController MoveWindowWithSolitaryTabs="False" />
+                        </dragablz:TabablzControl.InterTabController>-->
+                            <TabItem Header="好友">
+                                <ListBox
+                                    Margin="0"
+                                    ItemTemplate="{StaticResource MessageItem}"
+                                    ItemsSource="{Binding FriendList, Mode=TwoWay}"
+                                    SelectedIndex="{Binding FriendSelectedIndex, Mode=TwoWay}"
+                                    Style="{StaticResource VirtualListBox}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDoubleClick">
+                                            <i:InvokeCommandAction Command="{Binding GoToChatFromItemCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <ListBox.InputBindings>
+                                        <!--  Enter 跳转发消息  -->
+                                        <KeyBinding Key="Enter" Command="{Binding GoToChatFromItemCommand}" />
+                                    </ListBox.InputBindings>
+                                    <ListBox.ItemContainerStyle>
+                                        <!--  此处继承自MaterialDesign的样式  -->
+                                        <Style BasedOn="{StaticResource NoRippleListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                            <Style.Setters>
+                                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                                <!--<EventSetter Event="MouseDoubleClick" Handler="OnListViewItemClick" />-->
+                                                <Setter Property="ContextMenu">
+                                                    <Setter.Value>
+                                                        <!--  右键菜单  -->
+                                                        <ContextMenu DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+                                                            <MenuItem
+                                                                Command="{Binding GoToChatFromItemCommand}"
+                                                                CommandParameter="{Binding Jid}"
+                                                                Header="发送消息" />
+                                                            <MenuItem
+                                                                Command="{Binding FriendDetailCommand}"
+                                                                CommandParameter="{Binding Jid}"
+                                                                Header="查看详情" />
+                                                            <!--  Icon="{materialDesign:PackIcon Kind=AccountCardDetails}"  -->
+                                                            <MenuItem Command="{Binding AddToBlackCommand}" Header="加入黑名单" />
+                                                            <!--  Icon="{materialDesign:PackIcon Kind=MinusCircle}"  -->
+                                                            <MenuItem Command="{Binding FriendDeleteCommand}" Header="删除好友" />
+                                                        </ContextMenu>
+                                                        <!--  Icon="{materialDesign:PackIcon Kind=DeleteForever}"  -->
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <!--  <Setter Property=""  -->
+                                            </Style.Setters>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
+                                </ListBox>
+                            </TabItem>
+                            <TabItem
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                Header="黑名单">
+                                <!--  预留  -->
+                                <Grid IsHitTestVisible="True">
+                                    <ListBox
+                                        ItemTemplate="{StaticResource MessageItem}"
+                                        ItemsSource="{Binding BlackList}"
+                                        SelectedIndex="{Binding BlackSelectedIndex, Mode=TwoWay}"
+                                        Style="{StaticResource VirtualListBox}">
+                                        <ListBox.ItemContainerStyle>
+                                            <!--  此处继承自MaterialDesign的样式  -->
+                                            <Style BasedOn="{StaticResource NoRippleListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                                <Style.Setters>
+                                                    <!--<EventSetter Event="MouseDoubleClick" Handler="OnListViewItemDoubleClick" />-->
+                                                    <Setter Property="ContextMenu">
+                                                        <Setter.Value>
+                                                            <ContextMenu DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+                                                                <MenuItem Command="{Binding FriendDetailCommand}" Header="查看详情" />
+                                                                <!--  Icon="{materialDesign:PackIcon Kind=AccountCardDetails}"  -->
+                                                                <MenuItem Command="{Binding BlackListRemoveCommand}" Header="移出黑名单" />
+                                                                <!--  Icon="{materialDesign:PackIcon Kind=MinusCircle}"  -->
+                                                                <!--<MenuItem
+                                                                            Command="{Binding AccountDeleteItem_Click}"
+                                                                            Header="删除好友"  />-->
+                                                                <!--  Icon="{materialDesign:PackIcon Kind=DeleteForever}"  -->
+                                                            </ContextMenu>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <!--<Setter Property="Tag" Value="{Binding FriendList}" />-->
+                                                </Style.Setters>
+                                            </Style>
+                                        </ListBox.ItemContainerStyle>
+                                    </ListBox>
+                                </Grid>
+                            </TabItem>
+                        </TabControl>
+                    </materialDesign:TransitionerSlide>
+                    <!--  群组列表  -->
+                    <materialDesign:TransitionerSlide>
+                        <materialDesign:TransitionerSlide.ForwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.ForwardWipe>
+                        <materialDesign:TransitionerSlide.BackwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.BackwardWipe>
+                        <!--<dragablz:TabablzControl.InterTabController>
+                            <dragablz:    />
+                        </dragablz:TabablzControl.InterTabController>-->
+                        <!--<Grid>-->
+                        <ListBox
+                            ItemTemplate="{StaticResource MessageItem}"
+                            ItemsSource="{Binding MyGroupList}"
+                            SelectedIndex="{Binding MyGroupSelectedIndex}"
+                            Style="{StaticResource VirtualListBox}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDoubleClick">
+                                    <i:InvokeCommandAction Command="{Binding GoToChatFromItemCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ListBox.InputBindings>
+                                <!--  Enter 跳转发消息  -->
+                                <KeyBinding Key="Execute" Command="{Binding GoToChatFromItemCommand}" />
+                            </ListBox.InputBindings>
+                            <ListBox.ItemContainerStyle>
+                                <!--  此处继承自MaterialDesign的样式  -->
+                                <Style BasedOn="{StaticResource NoRippleListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                    <Style.Setters>
+                                        <!--<EventSetter Event="MouseDoubleClick" Handler="OnListViewItemClick" />-->
+                                        <Setter Property="ContextMenu">
+                                            <Setter.Value>
+                                                <ContextMenu DataContext="{Binding Source={StaticResource Locator}, Path=Main}">
+                                                    <MenuItem Command="{Binding GroupSendMessageCommand}" Header="发送消息" />
+                                                    <MenuItem Command="{Binding GroupDetailCommand}" Header="群组详情" />
+                                                    <!--  Icon="{materialDesign:PackIcon Kind=AccountMultiple}"  -->
+                                                    <MenuItem Command="{Binding GroupExitCommand}" Header="删除/退出群组" />
+                                                    <!--  Icon="{materialDesign:PackIcon Kind=Logout}"  -->
+                                                </ContextMenu>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style.Setters>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                        <!--</Grid>-->
+                    </materialDesign:TransitionerSlide>
+                </materialDesign:Transitioner>
+            </Grid>
+            <!--  左右分隔线(可调整)  -->
+            <GridSplitter
+                Grid.Row="0" Grid.RowSpan="2"
+                Grid.Column="1" Width="1"
+                HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                Panel.ZIndex="4"
+                Background="{DynamicResource MaterialDesignDivider}"
+                FocusVisualStyle="{StaticResource NullFocusStyle}"
+                Opacity="0.2" ShowsPreview="False"
+                WindowChrome.IsHitTestVisibleInChrome="True" />
+            <!--  上下分割线  -->
+            <GridSplitter
+                Grid.Row="1" Grid.Column="2"
+                Height="1" HorizontalAlignment="Stretch"
+                VerticalAlignment="Top" Panel.ZIndex="4"
+                Background="{DynamicResource MaterialDesignDivider}"
+                IsEnabled="False" Opacity="0.2"
+                ShowsPreview="False" WindowChrome.IsHitTestVisibleInChrome="True" />
+            <!--  右边的聊天窗口  -->
+            <Border
+                Grid.Row="0" Grid.RowSpan="2"
+                Grid.Column="2" Padding="0"
+                AllowDrop="True"
+                Background="{DynamicResource MaterialDesignBackground}">
+                <!--  {Binding MainTabSelectedIndex,FallbackValue=0}  -->
+                <materialDesign:Transitioner AutoApplyTransitionOrigins="True" SelectedIndex="{Binding MainTabSelectedIndex, FallbackValue=0}">
+                    <!--  消息与好友验证面板  -->
+                    <materialDesign:TransitionerSlide>
+                        <materialDesign:TransitionerSlide.ForwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.ForwardWipe>
+                        <materialDesign:TransitionerSlide.BackwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.BackwardWipe>
+                        <!--  消息与好友验证面板  -->
+                        <materialDesign:Transitioner SelectedIndex="{Binding Sess.Jid, Converter={StaticResource ChatPageSwitchConverter}, FallbackValue=0}">
+                            <!--  消息面板  -->
+                            <materialDesign:TransitionerSlide>
+                                <materialDesign:TransitionerSlide.ForwardWipe>
+                                    <materialDesign:FadeWipe Duration="0:0:0.1" />
+                                </materialDesign:TransitionerSlide.ForwardWipe>
+                                <materialDesign:TransitionerSlide.BackwardWipe>
+                                    <materialDesign:FadeWipe Duration="0:0:0.1" />
+                                </materialDesign:TransitionerSlide.BackwardWipe>
+                                <Grid AllowDrop="True">
+                                    <Grid.RowDefinitions>
+                                        <!--<RowDefinition Height="53" />-->
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="*" MinHeight="112" />
+                                        <RowDefinition Height="auto" />
+                                        <!--<RowDefinition Height="36" MaxHeight="36" />-->
+                                        <RowDefinition Height="auto" MinHeight="112" />
+                                    </Grid.RowDefinitions>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="DragDrop">
+                                            <command:EventToCommand Command="{Binding ChatDragDropCommand}" PassEventArgsToCommand="True" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="DragEnter">
+                                            <command:EventToCommand Command="{Binding ChatDragEnterCommand}" PassEventArgsToCommand="True" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <!--  标题内容  -->
+                                    <Grid
+                                        Grid.Row="0" Height="56"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        Background="{DynamicResource MaterialDesignBackground}">
+                                        <StackPanel
+                                            Margin="14,0,0,0" HorizontalAlignment="Left"
+                                            VerticalAlignment="Center" Orientation="Vertical">
+                                            <!--  会话用户昵称  -->
+                                            <Button
+                                                Margin="0" Padding="0"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                materialDesign:RippleAssist.IsCentered="True" materialDesign:RippleAssist.IsDisabled="True"
+                                                materialDesign:RippleAssist.RippleSizeMultiplier="0.5"
+                                                Command="{Binding SessionTitleCommand}"
+                                                Focusable="False" Foreground="Black"
+                                                Style="{StaticResource MaterialDesignToolForegroundButton}"
+                                                WindowChrome.IsHitTestVisibleInChrome="True">
+                                                <TextBlock
+                                                    MaxWidth="400" FontWeight="Regular"
+                                                    Style="{StaticResource MaterialDesignTitleTextBlock}"
+                                                    Text="{Binding Sess.RemarkName}"
+                                                    TextTrimming="CharacterEllipsis" />
+                                            </Button>
+                                            <!--  在线状态  -->
+                                            <TextBlock
+                                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                FontFamily="Microsoft YaHei" FontSize="12"
+                                                Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                                                Text="{Binding Sess.IsOnlineText}">
+                                                <materialDesign:Ripple />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                    <!--  聊天气泡  -->
+                                    <view:ChatBubbleListControl Grid.Row="1" VerticalAlignment="Stretch" />
+                                    <!--  分割线  -->
+                                    <GridSplitter
+                                        Grid.Row="2" Height="2"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                                        Panel.ZIndex="2"
+                                        Background="{DynamicResource MaterialDesignDivider}"
+                                        ResizeBehavior="PreviousAndNext" ResizeDirection="Rows"
+                                        ShowsPreview="False" />
+                                    <!--  表情Card  -->
+                                    <materialDesign:Card
+                                        x:Name="emojiView" Grid.Row="1"
+                                        Grid.RowSpan="2" Grid.Column="1"
+                                        Width="0" Height="0"
+                                        Margin="2,4" Padding="0"
+                                        HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                        Panel.ZIndex="4" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        Background="{DynamicResource MaterialDesignBackground}"
+                                        Focusable="True" Opacity="0"
+                                        UniformCornerRadius="4" Visibility="Visible">
+                                        <TabControl
+                                            BorderThickness="0" Focusable="False"
+                                            ItemContainerStyle="{StaticResource AboutTabItemStyle}"
+                                            Style="{StaticResource AboutTabControlStyle}"
+                                            TabStripPlacement="Top">
+                                            <TabItem Header="{materialDesign:PackIcon Kind=Emoticon}">
+                                                <TabItem.Content>
+                                                    <ItemsControl Width="460" ItemsSource="{Binding EmojiEmotionList}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button
+                                                                    Width="32" Height="32"
+                                                                    Margin="0" Padding="4"
+                                                                    Command="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}, Path=DataContext.AddEmojiToTxtCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Focusable="False" RenderOptions.BitmapScalingMode="HighQuality"
+                                                                    Style="{StaticResource MaterialDesignFlatButton}">
+                                                                    <Image Source="{Binding}" />
+                                                                </Button>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <WrapPanel VerticalAlignment="Stretch" Orientation="Horizontal" />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                    </ItemsControl>
+                                                </TabItem.Content>
+                                            </TabItem>
+                                            <TabItem Header="{materialDesign:PackIcon Kind=Sticker}" ToolTip="动图">
+                                                <ScrollViewer
+                                                    Name="sp_gifexperssion" Margin="1"
+                                                    HorizontalAlignment="Stretch" Focusable="False"
+                                                    HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+                                                    <ItemsControl
+                                                        Width="460" Margin="0,8,0,0"
+                                                        ItemsSource="{Binding GifEmotionList}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button
+                                                                    Width="64" Height="64"
+                                                                    Margin="4" Padding="4"
+                                                                    Command="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}, Path=DataContext.SendGifCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Focusable="False" RenderOptions.BitmapScalingMode="LowQuality"
+                                                                    Style="{StaticResource MaterialDesignFlatButton}">
+                                                                    <Button.ToolTip>
+                                                                        <Border Background="{DynamicResource MaterialDesignBackground}">
+                                                                            <Image Width="100" Source="{Binding}" />
+                                                                        </Border>
+                                                                    </Button.ToolTip>
+                                                                    <Image Source="{Binding}" />
+                                                                </Button>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <WrapPanel VerticalAlignment="Stretch" Orientation="Horizontal" />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                        </TabControl>
+                                    </materialDesign:Card>
+                                    <Grid Grid.Row="3" VerticalAlignment="Stretch">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="auto" />
+                                            <RowDefinition Height="auto" />
+                                        </Grid.RowDefinitions>
+                                        <!--  聊天工具栏  -->
+                                        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                                            <!--  表情按钮  -->
+                                            <Button
+                                                x:Name="EmojiBtn" Width="32"
+                                                Height="32" Margin="3,0"
+                                                Padding="0" Click="btn_emotion_Click"
+                                                Focusable="True"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="表情">
+                                                <!--  点击此处应聚焦到表情卡片上  -->
+                                                <Image
+                                                    RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"
+                                                    Source="../icon/Mtool/emoji.png" />
+                                                <x:Code>
+                                                    private void btn_emotion_Click(object sender, RoutedEventArgs e)
+                                                    {
+                                                    emojiView.Focus();
+                                                    }
+                                                </x:Code>
+                                            </Button>
+                                            <!--  发送文件  -->
+                                            <Button
+                                                Width="32" Height="32"
+                                                Margin="3,0" Padding="0"
+                                                Command="{Binding SendFileCommand}"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="发送文件">
+                                                <StackPanel>
+                                                    <Image RenderOptions.BitmapScalingMode="HighQuality" Source="../icon/Mtool/doc.png" />
+                                                </StackPanel>
+                                            </Button>
+                                            <!--  发送名片  -->
+                                            <Button
+                                                Width="32" Height="32"
+                                                Margin="3,0" Padding="0"
+                                                Command="{Binding ShowContactCommand}"
+                                                CommandParameter="{StaticResource DialogContactCard}"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="发送名片">
+                                                <!--  {x:Static materialDesign:DialogHost.OpenDialogCommand}  -->
+                                                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="../icon/Mtool/friend.png" />
+                                            </Button>
+                                            <!--  聊天记录  -->
+                                            <Button
+                                                Width="32" Height="32"
+                                                Margin="3,0" Padding="0"
+                                                Command="{Binding ChatHistoryCommand}"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="聊天记录">
+                                                <!--  Command="{Binding GetMoreMessageCommand}"  -->
+                                                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="../icon/Mtool/chathistory.png" />
+                                            </Button>
+                                            <!--  发送红包  -->
+                                            <Button
+                                                Width="22" Height="22"
+                                                Margin="3,0" Padding="0"
+                                                Command="{Binding SendRedPacketCommand}"
+                                                CommandParameter="{StaticResource DialogContactCard}"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="发送红包">
+                                                <!--  {x:Static materialDesign:DialogHost.OpenDialogCommand}  -->
+                                                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="../icon/Mtool/redPacket.png" />
+                                            </Button>
+                                            <!--  截图  -->
+                                            <Button
+                                                Width="32" Height="32"
+                                                Margin="3,0" Padding="0"
+                                                Click="screenShotClick"
+                                                Foreground="{DynamicResource MaterialDesignFlatButtonRipple}"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="截图并发送">
+                                                <!--<materialDesign:PackIcon Kind="ContentCut" Width="24" Height="24" />-->
+                                                <Image
+                                                    Width="28" Height="28"
+                                                    RenderOptions.BitmapScalingMode="HighQuality" Source="../icon/Mtool/shoot.png" />
+                                            </Button>
+                                        </StackPanel>
+                                        <!--<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                            <Button
+                                                Width="32" Height="32"
+                                                Margin="3,0" Padding="0"
+                                                Command="{Binding ChatVoiceCommand}"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="语音聊天">
+                                                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="../icon/Mtool/voice.png" />
+                                            </Button>
+                                            <Button
+                                                Width="32" Height="32"
+                                                Margin="3,0" Padding="0"
+                                                Command="{Binding ChatVideoCommand}"
+                                                Style="{StaticResource EmptyButtonStyle}"
+                                                ToolTip="视频聊天">
+                                                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="../icon/Mtool/video.png" />
+                                            </Button>
+                                        </StackPanel>-->
+                                        <!--  富文本编辑框  -->
+                                        <local:BindableRichText
+                                            x:Name="rtb_sendMessage" Grid.Row="2"
+                                            Height="auto"
+                                            MaxHeight="240"
+                                            MinHeight="60"
+                                            Margin="0,0,0,36" Padding="6"
+                                            HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                                            AllowDrop="True" BorderThickness="0"
+                                            Document="{Binding TextFieldDocument, Mode=TwoWay}"
+                                            FontSize="15" 
+                                            ScrollViewer.CanContentScroll="True" 
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                            <local:BindableRichText.InputBindings>
+                                                <KeyBinding 
+                                                    Modifiers="Ctrl" Key="V" 
+                                                    Command="{Binding KeyOfPasteCommand}"/>
+                                                <KeyBinding
+                                                    Modifiers="Ctrl" Key="Enter"
+                                                    Command="{Binding SendTextCommand}"/>
+                                            </local:BindableRichText.InputBindings>
+                                            <!--<local:BindableRichText.Triggers>
+                                        <EventTrigger SourceName="rtb_sendMessage" RoutedEvent="GotFocus" >
+                                        </EventTrigger>
+                                    </local:BindableRichText.Triggers>-->
+                                            <!--<FlowDocument Name="SendDocument">
+                                    </FlowDocument>-->
+                                        </local:BindableRichText>
+                                    </Grid>
+                                    <!--  发送  -->
+                                    <Button
+                                        x:Name="btn_Send" Grid.Row="3"
+                                        Width="72" Height="36"
+                                        Margin="8" HorizontalAlignment="Right"
+                                        VerticalAlignment="Bottom" materialDesign:RippleAssist.IsDisabled="True"
+                                        materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                        Command="{Binding SendTextCommand}"
+                                        FocusVisualStyle="{StaticResource NullFocusStyle}"
+                                        FontSize="15" FontWeight="Normal"
+                                        Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
+                                        Style="{StaticResource MaterialDesignRaisedAccentButton}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock
+                                                FontFamily="微软雅黑" FontSize="16"
+                                                Text="发送" />
+                                            <!--<materialDesign:PackIcon Kind="Send"/>-->
+                                            <!--  SendSecure可以用于加密发送图标  -->
+                                        </StackPanel>
+                                    </Button>
+                                    <!--  发送文件或图片提示卡片  -->
+                                    <StackPanel
+                                        Grid.Row="0" Grid.RowSpan="5"
+                                        Grid.Column="2" VerticalAlignment="Bottom"
+                                        Panel.ZIndex="5">
+                                        <materialDesign:Card
+                                            Height="256" Margin="8"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            Panel.ZIndex="5" AllowDrop="True"
+                                            Background="{DynamicResource MaterialDesignPaper}"
+                                            UniformCornerRadius="4"
+                                            Visibility="{Binding SendImageTooltipVisible, Converter={StaticResource BoolToVisiblityConverter}, FallbackValue=Collapsed}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="Drop">
+                                                    <command:EventToCommand Command="{Binding ImageToolTipCardDropCommand}" PassEventArgsToCommand="True" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <Grid>
+                                                <StackPanel
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Orientation="Vertical">
+                                                    <TextBlock
+                                                        Foreground="{DynamicResource MaterialDesignToolTipBackground}"
+                                                        IsEnabled="False"
+                                                        Style="{StaticResource MaterialDesignHeadlineTextBlock}"
+                                                        Text="{Binding SendAsImageText}" />
+                                                    <StackPanel
+                                                        Width="auto" HorizontalAlignment="Center"
+                                                        Orientation="Horizontal">
+                                                        <Border
+                                                            Width="72" Height="72"
+                                                            Margin="8"
+                                                            Background="{DynamicResource MaterialDesignDivider}"
+                                                            CornerRadius="50">
+                                                            <materialDesign:PackIcon
+                                                                Width="48" Height="48"
+                                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                                Foreground="{DynamicResource MaterialDesignToolTipBackground}"
+                                                                Kind="Image" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </materialDesign:Card>
+                                        <!--  文件发送提示模块  -->
+                                        <materialDesign:Card
+                                            Height="256" Margin="8"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            Panel.ZIndex="5"
+                                            Background="{DynamicResource MaterialDesignPaper}"
+                                            UniformCornerRadius="4"
+                                            Visibility="{Binding SendFileTooltipVisible, Converter={StaticResource BoolToVisiblityConverter}, FallbackValue=Collapsed}">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="DragDrop">
+                                                    <command:EventToCommand Command="{Binding FileToolTipCardDropCommand}" PassEventArgsToCommand="True" />
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="DragEnter">
+                                                    <command:EventToCommand Command="{Binding}" PassEventArgsToCommand="True" />
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                            <Grid>
+                                                <StackPanel
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Orientation="Vertical">
+                                                    <TextBlock
+                                                        Foreground="{DynamicResource MaterialDesignToolTipBackground}"
+                                                        IsEnabled="False"
+                                                        Style="{StaticResource MaterialDesignHeadlineTextBlock}"
+                                                        Text="{Binding SendAsFileTooltip}" />
+                                                    <TextBlock
+                                                        HorizontalAlignment="Center"
+                                                        Foreground="{DynamicResource MaterialDesignToolTipBackground}"
+                                                        IsEnabled="False"
+                                                        Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                                                        Text="移出此区域取消" />
+                                                    <Border
+                                                        Width="72" Height="72"
+                                                        Margin="8"
+                                                        Background="{DynamicResource MaterialDesignDivider}"
+                                                        CornerRadius="50">
+                                                        <materialDesign:PackIcon
+                                                            Width="48" Height="48"
+                                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                            Foreground="{DynamicResource MaterialDesignToolTipBackground}"
+                                                            Kind="File" />
+                                                    </Border>
+                                                </StackPanel>
+                                            </Grid>
+                                        </materialDesign:Card>
+                                    </StackPanel>
+                                </Grid>
+                            </materialDesign:TransitionerSlide>
+                            <!--  好友请求框  -->
+                            <materialDesign:TransitionerSlide>
+                                <materialDesign:TransitionerSlide.ForwardWipe>
+                                    <materialDesign:FadeWipe Duration="0:0:0.1" />
+                                </materialDesign:TransitionerSlide.ForwardWipe>
+                                <materialDesign:TransitionerSlide.BackwardWipe>
+                                    <materialDesign:FadeWipe Duration="0:0:0.1" />
+                                </materialDesign:TransitionerSlide.BackwardWipe>
+                                <!--  好友验证  -->
+                                <view:VerifyUserListControl />
+                            </materialDesign:TransitionerSlide>
+                            <!--  空白页面  -->
+                            <materialDesign:TransitionerSlide>
+                                <materialDesign:TransitionerSlide.ForwardWipe>
+                                    <materialDesign:FadeWipe Duration="0:0:0.1" />
+                                </materialDesign:TransitionerSlide.ForwardWipe>
+                                <materialDesign:TransitionerSlide.BackwardWipe>
+                                    <materialDesign:FadeWipe Duration="0:0:0.1" />
+                                </materialDesign:TransitionerSlide.BackwardWipe>
+                                <Grid />
+                            </materialDesign:TransitionerSlide>
+                        </materialDesign:Transitioner>
+                    </materialDesign:TransitionerSlide>
+                    <!--  好友详情面板  -->
+                    <materialDesign:TransitionerSlide>
+                        <materialDesign:TransitionerSlide.ForwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.ForwardWipe>
+                        <materialDesign:TransitionerSlide.BackwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.BackwardWipe>
+                        <Grid
+                            HorizontalAlignment="Stretch" Panel.ZIndex="2"
+                            Background="{DynamicResource MaterialDesignBackground}"
+                            Visibility="{Binding SelectedFriend, Converter={StaticResource IsNullToVisibilityConverter}}">
+                            <!--  6行6列  -->
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <!--  不怎么好看的白色标题栏。  -->
+                            <!--  颜色面板  -->
+                            <!--<Rectangle Visibility="Collapsed"
+                            Grid.RowSpan="2" Grid.ColumnSpan="6"
+                            VerticalAlignment="Stretch" Stroke="{DynamicResource SecondaryAccentBrush}"
+                            Fill="{DynamicResource SecondaryAccentBrush}" >
+                            <Rectangle.Effect>
+                                <DropShadowEffect ShadowDepth="0.8" Color="Gray"  Opacity="0.35" BlurRadius="6"/>
+                            </Rectangle.Effect>
+                        </Rectangle>-->
+                            <!--  头像  -->
+                            <!--  阴影使用Border避免内容模糊  -->
+                            <Border
+                                Grid.Row="1" Grid.RowSpan="3"
+                                Grid.Column="0" Grid.ColumnSpan="3"
+                                Padding="0" HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" Panel.ZIndex="2"
+                                Effect="{StaticResource MaterialDesignAvatorShadow}">
+                                <!--<Border.Effect>
+                                <DropShadowEffect ShadowDepth="0.4"
+                                  Color="Gray"  Opacity="0.2"
+                                  BlurRadius="5"/>
+                            </Border.Effect>-->
+                                <Ellipse
+                                    x:Name="ellipse" MaxWidth="200"
+                                    MaxHeight="200" Margin="0"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    Cursor="Hand" RenderOptions.BitmapScalingMode="HighQuality"
+                                    Visibility="{Binding SelectedFriend.userId, Converter={StaticResource IsNullToVisibilityConverter}}">
+                                    <Ellipse.Fill>
+                                        <ImageBrush ImageSource="{Binding SelectedFriend.userId, Converter={StaticResource UserIdToPathConverter}}" />
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                            </Border>
+                            <Grid
+                                Grid.Row="1" Grid.RowSpan="3"
+                                Grid.Column="3" Grid.ColumnSpan="3"
+                                Margin="8,0,0,0" HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="3*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel
+                                    Grid.Row="0" Margin="4,0"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                                    Orientation="Horizontal">
+                                    <!--  好友性别  -->
+                                    <materialDesign:PackIcon
+                                        Width="24" Height="24"
+                                        Margin="0,0,5,0" Foreground="Gray"
+                                        Kind="{Binding SelectedFriend.sex, Converter={StaticResource GenderConverter}}"
+                                        Visibility="{Binding SelectedFriendProfileVisiblity, Converter={StaticResource BoolToVisiblityConverter}}" />
+                                    <!--  昵称  -->
+                                    <TextBlock
+                                        FontSize="18"
+                                        Text="{Binding SelectedFriend.remarkName}"
+                                        TextWrapping="Wrap" />
+                                    <!--  编辑备注信息(暂未实  现功能)  -->
+                                    <Button
+                                        Height="25" materialDesign:RippleAssist.IsDisabled="True"
+                                        Content="{materialDesign:PackIcon Kind=Pencil}"
+                                        Style="{DynamicResource MaterialDesignToolButton}"
+                                        Visibility="Hidden" />
+                                </StackPanel>
+                                <!--  在线状态  -->
+                                <TextBlock
+                                    Grid.Row="1" Width="30"
+                                    Height="20" HorizontalAlignment="Left"
+                                    VerticalAlignment="Center" Visibility="Collapsed" />
+                                <!--  电话  -->
+                                <StackPanel
+                                    Grid.Row="2" Grid.ColumnSpan="2"
+                                    Margin="5,0" VerticalAlignment="Top"
+                                    Orientation="Horizontal">
+                                    <!--  生日  -->
+                                    <TextBlock
+                                        VerticalAlignment="Center" FontSize="14"
+                                        Text="生日: "
+                                        Visibility="{Binding SelectedFriendProfileVisiblity, Converter={StaticResource BoolToVisiblityConverter}}" />
+                                    <TextBox
+                                        Margin="0,5" HorizontalAlignment="Left"
+                                        Background="Transparent" BorderThickness="0"
+                                        Cursor="IBeam" FontSize="14"
+                                        IsReadOnly="True"
+                                        Style="{x:Null}"
+                                        Text="{Binding Path=SelectedFriend.birthday, Converter={StaticResource StampDate}}"
+                                        Visibility="{Binding SelectedFriendProfileVisiblity, Converter={StaticResource BoolToVisiblityConverter}}" />
+                                </StackPanel>
+                                <WrapPanel
+                                    Grid.Row="3" Grid.ColumnSpan="2"
+                                    Margin="5,0" VerticalAlignment="Top"
+                                    Orientation="Horizontal">
+                                    <TextBlock
+                                        VerticalAlignment="Center" FontSize="14"
+                                        Text="地区: "
+                                        Visibility="{Binding SelectedFriendProfileVisiblity, Converter={StaticResource BoolToVisiblityConverter}}" />
+                                    <!--  国家  -->
+                                    <TextBlock FontSize="14" Text="{Binding Path=SelectedFriend.countryId, Converter={StaticResource AreaConverter}}" />
+                                    <!--  省份  -->
+                                    <TextBlock
+                                        Margin="4,0,0,0" FontSize="14"
+                                        Text="{Binding Path=SelectedFriend.provinceId, Converter={StaticResource AreaConverter}}" />
+                                    <!--  城市  -->
+                                    <TextBlock
+                                        Margin="4,0,0,0" FontSize="14"
+                                        Text="{Binding Path=SelectedFriend.cityId, Converter={StaticResource AreaConverter}}" />
+                                    <!--  区县  -->
+                                    <TextBlock
+                                        Margin="4,0,0,0" FontSize="14"
+                                        Text="{Binding Path=SelectedFriend.areaId, Converter={StaticResource AreaConverter}}" />
+                                </WrapPanel>
+                            </Grid>
+                            <!--  发送消息  -->
+                            <Grid
+                                Grid.Row="4" Grid.Column="2"
+                                Grid.ColumnSpan="2"
+                                Visibility="{Binding Path=SelectedFriend.userId, Converter={StaticResource DetailSendConverter}, FallbackValue=Hidden}">
+                                <Button
+                                    x:Name="btn_DetailSend" Width="80"
+                                    Height="36" materialDesign:RippleAssist.IsDisabled="True"
+                                    Command="{Binding GoToChatFromItemCommand}"
+                                    FocusVisualStyle="{StaticResource NullFocusStyle}"
+                                    Style="{DynamicResource MaterialDesignRaisedAccentButton}"
+                                    Visibility="{Binding Path=FriendTypeIndex, Converter={StaticResource DetailSendConverter}}">
+                                    <TextBlock
+                                        FontSize="15" Foreground="#FFF"
+                                        Text="发消息" />
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </materialDesign:TransitionerSlide>
+                    <!--  群组详情面板  -->
+                    <materialDesign:TransitionerSlide>
+                        <materialDesign:TransitionerSlide.ForwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.ForwardWipe>
+                        <materialDesign:TransitionerSlide.BackwardWipe>
+                            <materialDesign:FadeWipe Duration="0:0:0.1" />
+                        </materialDesign:TransitionerSlide.BackwardWipe>
+                        <Grid Panel.ZIndex="2" Background="{DynamicResource MaterialDesignBackground}">
+                            <!--  6行6列  -->
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="2*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <!--  不怎么好看的白色标题栏。  -->
+                            <!--<Rectangle
+                            Grid.ColumnSpan="6"
+                            VerticalAlignment="Top"
+                            Height="52"
+                            Fill="#FFF" />-->
+                            <!--  主色面板  -->
+                            <Rectangle
+                                Grid.RowSpan="1" Grid.ColumnSpan="6"
+                                VerticalAlignment="Stretch"
+                                Fill="{DynamicResource SecondaryAccentBrush}"
+                                Stroke="{DynamicResource SecondaryAccentBrush}"
+                                Tag="本来这是一个酷聊主色的版块，符合MaterialDesign规范，但。。" Visibility="Collapsed">
+                                <Rectangle.Effect>
+                                    <DropShadowEffect
+                                        BlurRadius="5" Opacity="0.3"
+                                        ShadowDepth="0.8" Color="Black" />
+                                </Rectangle.Effect>
+                            </Rectangle>
+                            <StackPanel
+                                Grid.Row="1" Grid.ColumnSpan="6"
+                                HorizontalAlignment="Center"
+                                Visibility="{Binding RoomInfoVisible, Converter={StaticResource BoolToVisiblityConverter}}">
+                                <!--  昵称  -->
+                                <TextBlock
+                                    Margin="0,0,0,10" HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom" FontSize="20"
+                                    Text="{Binding DisplayGroup.name}" />
+                                <!--  描述DisplayGroup  -->
+                                <StackPanel
+                                    Margin="0,10,0,0" HorizontalAlignment="Center"
+                                    VerticalAlignment="Top" Orientation="Horizontal">
+                                    <TextBlock FontSize="14" Text="{Binding DisplayGroup.desc, Converter={StaticResource InsertTxtConverter}, ConverterParameter=群简介：}" />
+                                </StackPanel>
+                            </StackPanel>
+                            <!--  头像  -->
+                            <!--  {binding userId,Converter}  -->
+                            <Border
+                                Grid.Row="0" Grid.RowSpan="2"
+                                Grid.Column="1" Grid.ColumnSpan="2"
+                                Padding="0" HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom" Panel.ZIndex="2"
+                                Visibility="{Binding RoomInfoVisible, Converter={StaticResource BoolToVisiblityConverter}, Mode=OneWay}">
+                                <Border.Effect>
+                                    <DropShadowEffect
+                                        BlurRadius="5" Opacity="0.3"
+                                        ShadowDepth="0.4" Color="Black" />
+                                </Border.Effect>
+                            </Border>
+                            <Grid
+                                Grid.Row="1" Grid.RowSpan="1"
+                                Grid.Column="1" Grid.ColumnSpan="4"
+                                Margin="8,0,0,0" VerticalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <!--  {binding nickname}  -->
+                                <StackPanel
+                                    Grid.Row="0" Margin="4,0"
+                                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                                    Orientation="Horizontal"
+                                    Visibility="{Binding RoomInfoVisible, Converter={StaticResource BoolToVisiblityConverter}, Mode=OneWay}">
+                                    <!--  此处可以更改为一个按钮  -->
+                                    <!--<TextBlock x:Name="na1"
+                                       FontSize="18"
+                                       Text="{Binding SelectedGroupDetial.name}"  />-->
+                                    <!--  编辑备注名称(暂未日设置)  -->
+                                    <Button
+                                        Height="25" materialDesign:RippleAssist.IsDisabled="True"
+                                        Content="{materialDesign:PackIcon Kind=Pencil}"
+                                        Style="{DynamicResource MaterialDesignToolButton}"
+                                        Visibility="Hidden" />
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock
+                                Grid.Row="2" Grid.RowSpan="3"
+                                Grid.Column="1" Grid.ColumnSpan="4"
+                                Padding="3" HorizontalAlignment="Center"
+                                VerticalAlignment="Center" FontSize="14"
+                                Foreground="Gray"
+                                Text="{Binding HiddenMembers}" />
+                            <!--  群聊好友列表  -->
+                            <ScrollViewer
+                                x:Name="scro" Grid.Row="2"
+                                Grid.RowSpan="3" Grid.Column="1"
+                                Grid.ColumnSpan="4" Padding="3"
+                                VerticalScrollBarVisibility="Auto"
+                                Visibility="{Binding RoomInfoVisible, Converter={StaticResource BoolToVisiblityConverter}, Mode=OneWay}">
+                                <ItemsControl
+                                    x:Name="itemsControl" Background="Transparent"
+                                    ItemsSource="{Binding SelectedGroupMember}"
+                                    Style="{StaticResource VirtualListBox}">
+                                    <ItemsControl.Resources>
+                                        <Style TargetType="ItemsControl">
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                        </Style>
+                                    </ItemsControl.Resources>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button
+                                                Width="68" Height="85"
+                                                Margin="1.5" Padding="0"
+                                                HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                                                materialDesign:RippleAssist.ClipToBounds="True" materialDesign:RippleAssist.IsCentered="True"
+                                                materialDesign:RippleAssist.IsDisabled="True" Click="AccountItemDetail_Click"
+                                                Focusable="False"
+                                                Style="{DynamicResource MaterialDesignToolForegroundButton}"
+                                                Tag="{Binding userId}">
+                                                <Border
+                                                    x:Name="button" HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch" CornerRadius="2">
+                                                    <!--  materialDesign:RippleAssist.RippleSizeMultiplier="0.75"  -->
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="3*" />
+                                                            <RowDefinition />
+                                                        </Grid.RowDefinitions>
+                                                        <!--  头像  -->
+                                                        <Ellipse
+                                                            x:Name="ellipse" Width="50"
+                                                            Height="50" HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" Panel.ZIndex="3"
+                                                            Cursor="Hand" RenderOptions.BitmapScalingMode="HighQuality"
+                                                            Tag="{Binding userId}">
+                                                            <Ellipse.Fill>
+                                                                <ImageBrush ImageSource="{Binding userId, Converter={StaticResource UserIdToPathConverter}}" />
+                                                            </Ellipse.Fill>
+                                                        </Ellipse>
+                                                        <!--  成员的等级  -->
+                                                        <Image
+                                                            Width="15" Height="15"
+                                                            HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                                                        <!--  昵称  -->
+                                                        <TextBlock
+                                                            Grid.Row="1" Margin="2,0"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                            Text="{Binding nickname}"
+                                                            TextTrimming="CharacterEllipsis" />
+                                                    </Grid>
+                                                </Border>
+                                            </Button>
+                                            <DataTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="button" Property="Background" Value="#88D5D5D5" />
+                                                </Trigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            <!--  按钮  -->
+                            <Button
+                                Grid.Row="5" Grid.Column="2"
+                                Grid.ColumnSpan="2" Width="100"
+                                Height="36" HorizontalAlignment="Center"
+                                VerticalContentAlignment="Center" materialDesign:RippleAssist.IsDisabled="True"
+                                materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                                Command="{Binding GoToChatFromItemCommand}"
+                                Style="{DynamicResource MaterialDesignRaisedAccentButton}"
+                                Visibility="{Binding RoomInfoVisible, Converter={StaticResource BoolToVisiblityConverter}}">
+                                <!--<materialDesign:PackIcon Kind="MessageText"  Width="25" Height="25"  />-->
+                                <TextBlock
+                                    FontSize="15" Foreground="#FFF"
+                                    Text="{Binding GroupBtnContent}" />
+                            </Button>
+                        </Grid>
+                    </materialDesign:TransitionerSlide>
+                </materialDesign:Transitioner>
+            </Border>
+            <!--  SnackBar提示消息  -->
+            <materialDesign:Snackbar
+                Grid.Row="1" Grid.Column="2"
+                Grid.ColumnSpan="5" Width="auto"
+                Height="auto" Margin="8,0,0,0"
+                HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                Panel.ZIndex="10"
+                MessageQueue="{Binding Snackbar}" />
+            <!--  播放器  -->
+            <vlc:VlcControl x:Name="VlcPlayer" Visibility="Collapsed" />
+        </Grid>
+    </materialDesign:DialogHost>
+</Window>

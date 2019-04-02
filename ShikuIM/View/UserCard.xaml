@@ -1,0 +1,249 @@
+﻿<Window
+    x:Class="ShikuIM.UserDetailView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:localbase="clr-namespace:ShikuIM"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="window"
+    Title="好友资料"
+    Width="350"
+    Height="470"
+    AllowsTransparency="True"
+    Background="Transparent"
+    DataContext="{Binding Source={StaticResource Locator}, Path=UserDetial}"
+    KeyDown="Window_KeyDown"
+    MouseLeftButtonDown="Window_MouseLeftButtonDown"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource WindowOnLoad}" />
+        </EventTrigger>
+    </Window.Triggers>
+    <Border
+        Margin="15"
+        Background="#FFF"
+        CornerRadius="4"
+        Effect="{StaticResource WindowShadow}">
+        <Grid x:Name="gd_main">
+            <!--  弹出框  -->
+            <materialDesign:DialogHost IsOpen="{Binding IsEditing, FallbackValue=false}">
+                <!--#region 弹出框内容-->
+                <materialDesign:DialogHost.DialogContent>
+                    <materialDesign:Card
+                        Width="280"
+                        Height="224"
+                        VerticalAlignment="Center"
+                        FontFamily="微软雅黑">
+                        <!--  Press esc to close the  -->
+                        <materialDesign:Card.InputBindings>
+                            <!--  {x:Static materialDesign:DialogHost.CloseDialogCommand}  -->
+                            <KeyBinding Key="Esc" Command="{Binding CancelEditCommand}" />
+                        </materialDesign:Card.InputBindings>
+                        <Grid>
+                            <Button
+                                Grid.Row="0"
+                                Grid.Column="3"
+                                Grid.ColumnSpan="2"
+                                Width="36"
+                                Height="36"
+                                Padding="0"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                materialDesign:RippleAssist.IsCentered="True"
+                                Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                Content="{materialDesign:PackIcon Kind=Close,
+                                                                  Size=24}"
+                                Foreground="Black"
+                                Opacity="0.6"
+                                Style="{StaticResource MaterialDesignToolButton}" />
+                            <!--  标题提示  -->
+                            <TextBlock
+                                Margin="16,24,0,0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                FontSize="17"
+                                Text="修改备注名" />
+                            <!--  备注名  -->
+                            <StackPanel
+                                MinHeight="36"
+                                MaxHeight="64"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <materialDesign:PackIcon VerticalAlignment="Center" Kind="RenameBox" />
+                                <TextBox
+                                    Width="215"
+                                    VerticalAlignment="Center"
+                                    materialDesign:HintAssist.Hint="备注名"
+                                    FontSize="15"
+                                    Text="{Binding TempRemarkName, UpdateSourceTrigger=PropertyChanged}"
+                                    TextWrapping="Wrap"
+                                    ToolTip="按Esc退出编辑"
+                                    ToolTipService.Placement="Mouse">
+                                    <TextBox.InputBindings>
+                                        <!--<KeyBinding Key="Return" Command="{Binding EditGroupNameCommand}" />-->
+                                        <KeyBinding Key="Esc" Command="{Binding CancelEditCommand}" />
+                                    </TextBox.InputBindings>
+                                </TextBox>
+                            </StackPanel>
+                            <Button
+                                Width="56"
+                                Height="40"
+                                Margin="0,0,16,8"
+                                Padding="0"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
+                                Command="{Binding UserInfoConfirmCommand}"
+                                Content="确定"
+                                FontSize="15"
+                                Style="{StaticResource MaterialDesignFlatButton}" />
+                        </Grid>
+                    </materialDesign:Card>
+                </materialDesign:DialogHost.DialogContent>
+            </materialDesign:DialogHost>
+            <!--#endregion-->
+            <Grid x:Name="body">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="8*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="5*" />
+                </Grid.RowDefinitions>
+                <!--  头像  -->
+                <Ellipse
+                    Grid.ColumnSpan="3"
+                    Width="90"
+                    Height="90"
+                    Margin="10"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Effect="{StaticResource MaterialDesignAvatorShadow}"
+                    RenderOptions.BitmapScalingMode="HighQuality"
+                    MouseLeftButtonDown="Ellipse_MouseLeftButtonDown"
+                    Cursor="Hand">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="{Binding Friend.userId, Converter={StaticResource UserIdToPathConverter}}" />
+                    </Ellipse.Fill>
+                </Ellipse>
+                <!--  昵称  -->
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Margin="4,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontSize="15"
+                    Text="{Binding Friend.nickname}"
+                    TextTrimming="CharacterEllipsis" />
+                <!--  备注  -->
+                <WrapPanel
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Visibility="{Binding IsRemarkNameVisibility, Converter={StaticResource BoolToVisiblityConverter}}">
+                    <TextBlock
+                        Margin="4,0"
+                        FontSize="15"
+                        Text="{Binding RemarkName}"
+                        TextTrimming="CharacterEllipsis" />
+                    <Button
+                        Width="25"
+                        Height="25"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        materialDesign:RippleAssist.IsCentered="True"
+                        materialDesign:RippleAssist.IsDisabled="False"
+                        materialDesign:RippleAssist.RippleSizeMultiplier="0.75"
+                        Command="{Binding EditRemarkNameCommand}"
+                        Foreground="#000"
+                        Style="{StaticResource MaterialDesignToolForegroundButton}"
+                        ToolTip="编辑备注">
+                        <materialDesign:PackIcon
+                            Width="15"
+                            Height="15"
+                            Kind="Pencil" />
+                    </Button>
+                </WrapPanel>
+                <!--  性别  -->
+                <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="1"
+                    Margin="4,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Text="{Binding Friend.sex, Converter={StaticResource GenderConverter}, ConverterParameter=1}" />
+                <!--  生日  -->
+                <TextBlock
+                    Grid.Row="5"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Margin="4,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    FontSize="13"
+                    Text="{Binding Friend.birthday, Converter={StaticResource StampDate}, ConverterParameter=1}" />
+                <!--  提示文本  -->
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Foreground="Gray"
+                    Text="昵称" />
+                <TextBlock
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Foreground="Gray"
+                    Text="备注" />
+                <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Foreground="Gray"
+                    Text="性别" />
+                <TextBlock
+                    Grid.Row="5"
+                    Grid.Column="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Foreground="Gray"
+                    Text="生日" />
+                <!--<Label Content="地区" Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Foreground="Gray"></Label>-->
+                <Button
+                    Grid.Row="7"
+                    Grid.Column="1"
+                    Width="88"
+                    Height="36"
+                    Padding="4"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth1"
+                    Command="{Binding SendOrAddCommand}"
+                    CommandParameter="{Binding IsFriend}"
+                    Content="{Binding BtnContent}"
+                    Focusable="False"
+                    Foreground="#FFF"
+                    IsEnabled="{Binding BtnVisiblity}"
+                    Style="{StaticResource MaterialDesignRaisedAccentButton}" />
+            </Grid>
+            <materialDesign:Snackbar MessageQueue="{Binding Snackbar}" />
+        </Grid>
+    </Border>
+</Window>

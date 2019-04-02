@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="ShikuIM.UserControls.FormOperation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ShikuIM.UserControls" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+             Height="32" Width="auto" Margin="0" >
+    <UserControl.Resources>
+        <!--关闭移入移出-->
+        <Storyboard x:Key="Close_MouseEnter">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="btn_close">
+                <EasingColorKeyFrame KeyTime="0" Value="#909090"/>
+                <EasingColorKeyFrame KeyTime="0:0:0.2" Value="Black"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="Close_MouseLeave">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="btn_close"  >
+                <EasingColorKeyFrame KeyTime="0" Value="Black"/>
+                <EasingColorKeyFrame KeyTime="0:0:0.2" Value="#909090"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+        <!--最大化移入移出-->
+        <Storyboard x:Key="Max_MouseEnter">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="btn_max">
+                <EasingColorKeyFrame KeyTime="0" Value="#909090"/>
+                <EasingColorKeyFrame KeyTime="0:0:0.2" Value="Black"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="Max_MouseLeave">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="btn_max"  >
+                <EasingColorKeyFrame KeyTime="0" Value="Black"/>
+                <EasingColorKeyFrame KeyTime="0:0:0.2" Value="#909090"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+        <!--最小化移入移出-->
+        <Storyboard x:Key="Min_MouseEnter">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="btn_min">
+                <EasingColorKeyFrame KeyTime="0" Value="#909090"/>
+                <EasingColorKeyFrame KeyTime="0:0:0.2" Value="Black"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="Min_MouseLeave">
+            <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(TextElement.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="btn_min"  >
+                <EasingColorKeyFrame KeyTime="0" Value="Black"/>
+                <EasingColorKeyFrame KeyTime="0:0:0.2" Value="#909090"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+    </UserControl.Resources>
+    <UserControl.Triggers>
+        <!--Close Animations-->
+        <EventTrigger RoutedEvent="UIElement.MouseEnter" SourceName="btn_close" >
+            <BeginStoryboard Storyboard="{StaticResource Close_MouseEnter}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="UIElement.MouseLeave" SourceName="btn_close" >
+            <BeginStoryboard Storyboard="{StaticResource Close_MouseLeave}"/>
+        </EventTrigger>
+        <!--Max Animations-->
+        <EventTrigger RoutedEvent="UIElement.MouseEnter" SourceName="btn_max" >
+            <BeginStoryboard Storyboard="{StaticResource Max_MouseEnter}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="UIElement.MouseLeave" SourceName="btn_max" >
+            <BeginStoryboard Storyboard="{StaticResource Max_MouseLeave}"/>
+        </EventTrigger>
+        <!--Min Animations-->
+        <EventTrigger RoutedEvent="UIElement.MouseEnter" SourceName="btn_min" >
+            <BeginStoryboard Storyboard="{StaticResource Min_MouseEnter}"/>
+        </EventTrigger>
+        <EventTrigger RoutedEvent="UIElement.MouseLeave" SourceName="btn_min" >
+            <BeginStoryboard Storyboard="{StaticResource Min_MouseLeave}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+    <StackPanel Background="Transparent" 
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Height="32" Margin="0" Orientation="Horizontal"  >
+        <!--Min Button-->
+        <Button x:Name="btn_min" Margin="0" Foreground="#909090"
+                Style="{StaticResource MaterialDesignFlatButton}" 
+                materialDesign:RippleAssist.IsCentered="True" HorizontalAlignment="Right"
+                Width="36" Height="32" Padding="0" Content="{materialDesign:PackIcon Kind=Minus, Size=18}"
+                Click="btn_min_Click" Focusable="False" Cursor="Hand" />
+        <!--Maxwindow Button-->
+        <Button x:Name="btn_max" Margin="0" Foreground="#909090"
+                Style="{StaticResource MaterialDesignFlatButton}" 
+                materialDesign:RippleAssist.IsCentered="True" Panel.ZIndex="-5"
+                Content="{materialDesign:PackIcon Kind=WindowMaximize, Size=18}" 
+                Width="36" Height="32" Padding="0" HorizontalAlignment="Right" 
+                Click="btn_max_Click" Focusable="False" 
+                Cursor="Hand" />
+        <!--Close Button-->
+        <Button x:Name="btn_close" Margin="0" Foreground="#909090"
+                Style="{StaticResource MaterialDesignFlatButton}" 
+                materialDesign:RippleAssist.IsCentered="True"
+                Click="btnClose_Click"
+                Width="36" Height="32" Padding="0"
+                HorizontalAlignment="Right" 
+                Content="{materialDesign:PackIcon Kind=Close, Size=18}" 
+                Focusable="False" Cursor="Hand" 
+                />
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,384 @@
+﻿<Window
+    x:Class="ShikuIM.GroupCreate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:StepControl="clr-namespace:MaterialDesignExtensions.Model;assembly=MaterialDesignExtensions"
+    xmlns:command="http://www.galasoft.ch/mvvmlight"
+    xmlns:controls="clr-namespace:MaterialDesignExtensions.Controls;assembly=MaterialDesignExtensions"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:local="clr-namespace:ShikuIM"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:ShikuIM.Model"
+    xmlns:userControls1="clr-namespace:ShikuIM.UserControls"
+    xmlns:validation="clr-namespace:ShikuIM.Validation"
+    xmlns:viewmodel="clr-namespace:ShikuIM.ViewModel"
+    x:Name="window"
+    Title="创建群聊"
+    Width="570"
+    Height="520"
+    MinWidth="570"
+    MinHeight="520"
+    MaxWidth="570"
+    MaxHeight="520"
+    AllowsTransparency="True"
+    Background="Transparent"
+    Closed="window_Closed"
+    DataContext="{Binding Source={StaticResource Locator}, Path=GroupCreate}"
+    OpacityMask="White"
+    WindowStartupLocation="CenterScreen"
+    WindowStyle="None"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <!--  用于显示好友列表的MessageItem  -->
+        <DataTemplate x:Key="MemberItemTemplate">
+            <Grid
+                x:Name="gd_item"
+                Height="48"
+                Margin="0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <!--  头像  -->
+                <Ellipse
+                    x:Name="bd_ico"
+                    Grid.Column="0"
+                    Width="36"
+                    Height="36"
+                    Margin="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    RenderOptions.BitmapScalingMode="HighQuality">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="{Binding Jid, Converter={StaticResource UserIdToPathConverter}}" />
+                    </Ellipse.Fill>
+                </Ellipse>
+                <!--  内容  -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <!--  标题文字  -->
+                    <TextBlock
+                        x:Name="lbl_title"
+                        Height="18"
+                        Margin="0,0,0,3"
+                        Padding="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        FontFamily="Microsoft YaHei"
+                        FontSize="15"
+                        Foreground="#000000"
+                        Text="{Binding ShowTitle}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTip="{Binding MessageTitle}"
+                        UseLayoutRounding="False" />
+                    <!--  内容文字  -->
+                    <TextBlock
+                        x:Name="tbl_content"
+                        Height="16"
+                        Margin="0,3,10,0"
+                        Padding="0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        FontFamily="Microsoft YaHei"
+                        FontSize="12"
+                        Foreground="#909090"
+                        SnapsToDevicePixels="True"
+                        Text="{Binding MessageItemContent}"
+                        TextTrimming="CharacterEllipsis"
+                        Visibility="{Binding MessageItemContent, Converter={StaticResource ItemContentToVisibleConverter}}" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource WindowOnLoad}" />
+        </EventTrigger>
+    </Window.Triggers>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="36" ResizeBorderThickness="20" />
+    </WindowChrome.WindowChrome>
+    <Border
+        Margin="15"
+        Background="#fff"
+        CornerRadius="4"
+        Effect="{StaticResource WindowShadow}">
+        <Grid Name="gd_Main">
+            <StackPanel
+                Grid.Column="3"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Panel.ZIndex="5"
+                Orientation="Horizontal">
+                <!--  窗口操作按钮  -->
+                <!--  Min Button  -->
+                <Button
+                    Width="36"
+                    Height="32"
+                    Margin="0"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    materialDesign:RippleAssist.ClipToBounds="True"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Command="{Binding MinCommand}"
+                    Content="{materialDesign:PackIcon Kind=Minus,
+                                                      Size=18}"
+                    Cursor="Hand"
+                    Focusable="False"
+                    Foreground="#909090"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}"
+                    WindowChrome.IsHitTestVisibleInChrome="True" />
+                <!--  Maxwindow Button  -->
+                <Button
+                    Width="36"
+                    Height="32"
+                    Margin="0"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    materialDesign:RippleAssist.ClipToBounds="True"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Command="{Binding MaxCommand}"
+                    Content="{materialDesign:PackIcon Kind=WindowMaximize,
+                                                      Size=18}"
+                    Cursor="Hand"
+                    Focusable="False"
+                    Foreground="#909090"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}"
+                    WindowChrome.IsHitTestVisibleInChrome="True" />
+                <!--  Close Button  -->
+                <Button
+                    x:Name="btn_close"
+                    Width="36"
+                    Height="32"
+                    Margin="0"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    materialDesign:RippleAssist.ClipToBounds="True"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Command="{Binding CloseCommand}"
+                    Content="{materialDesign:PackIcon Kind=Close,
+                                                      Size=18}"
+                    Cursor="Hand"
+                    Focusable="False"
+                    Foreground="#909090"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}"
+                    WindowChrome.IsHitTestVisibleInChrome="True" />
+            </StackPanel>
+            <!--  步进控件  -->
+            <controls:Stepper
+                Height="auto"
+                Margin="0,36,0,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                materialDesign:RippleAssist.IsDisabled="True"
+                Background="#FFF"
+                IsLinear="False"
+                Layout="Vertical">
+                <controls:Stepper.Steps>
+                    <StepControl:Step HasValidationErrors="True">
+                        <StepControl:Step.Header>
+                            <StepControl:StepTitleHeader FirstLevelTitle="你想创建的群聊资料" SecondLevelTitle="群组名称和描述" />
+                        </StepControl:Step.Header>
+                        <StepControl:Step.Content>
+                            <WrapPanel
+                                HorizontalAlignment="Stretch"
+                                DataContext="{Binding ElementName=window, Path=DataContext}"
+                                Orientation="Vertical">
+                                <!--  群昵称  -->
+                                <StackPanel Margin="10,8,0,8" Orientation="Horizontal">
+                                    <materialDesign:PackIcon
+                                        Margin="0,15,8,0"
+                                        HorizontalAlignment="Right"
+                                        Foreground="{Binding ElementName=txt_Name, Path=BorderBrush}"
+                                        Kind="AccountMultiple" />
+                                    <TextBox
+                                        Width="300"
+                                        materialDesign:HintAssist.FloatingScale="0.75"
+                                        materialDesign:HintAssist.Hint="请输入群名称"
+                                        FontSize="15" >
+                                        <TextBox.Text>
+                                            <Binding Path="GroupName" UpdateSourceTrigger="LostFocus">
+                                                <Binding.ValidationRules>
+                                                    <!--  设置验证类  -->
+                                                    <validation:NotNullValidationRules FieldName="群名称" />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </StackPanel>
+                                <!--  群描述  -->
+                                <StackPanel Margin="10,8,0,0" Orientation="Horizontal">
+                                    <materialDesign:PackIcon
+                                        Margin="0,15,8,0"
+                                        HorizontalAlignment="Right"
+                                        Foreground="{Binding ElementName=txt_Desc, Path=BorderBrush}"
+                                        Kind="Label" />
+                                    <TextBox
+                                        Width="300"
+                                        materialDesign:HintAssist.FloatingScale="0.75"
+                                        materialDesign:HintAssist.Hint="请输入群描述"
+                                        FontSize="15">
+                                        <TextBox.Text>
+                                            <Binding Path="GroupDesc" UpdateSourceTrigger="LostFocus">
+                                                <Binding.ValidationRules>
+                                                    <!--  设置验证规则  -->
+                                                    <validation:NotNullValidationRules FieldName="群描述" />
+
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </StackPanel>
+                                <!--  下一步按钮  -->
+                                <controls:StepButtonBar
+                                    Margin="4,0"
+                                    HorizontalAlignment="Right"
+                                    materialDesign:RippleAssist.IsDisabled="True"
+                                    Continue="下一步"
+                                    Focusable="False" />
+                            </WrapPanel>
+                        </StepControl:Step.Content>
+                    </StepControl:Step>
+                    <StepControl:Step>
+                        <StepControl:Step.Header>
+                            <StepControl:StepTitleHeader FirstLevelTitle="你想邀请哪些好友？" SecondLevelTitle="从你的好友列表选择" />
+                        </StepControl:Step.Header>
+                        <StepControl:Step.Content>
+                            <Grid
+                                Margin="0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                DataContext="{Binding ElementName=window, Path=DataContext}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="30px" />
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+                                    <!--  好友列表  -->
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        FontSize="14"
+                                        Text="好友" />
+                                    <!--  ItemsSource="{Binding FriendList}"  -->
+                                    <ListBox
+                                        x:Name="Lb_Friends"
+                                        Grid.Row="1"
+                                        Width="auto"
+                                        Height="256"
+                                        MinHeight="250"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Stretch"
+                                        ItemTemplate="{StaticResource MemberItemTemplate}"
+                                        ItemsSource="{Binding FriendList}"
+                                        ScrollViewer.CanContentScroll="False"
+                                        SelectionMode="Multiple"
+                                        Style="{StaticResource VirtualListBox}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <command:EventToCommand Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                        <ListBox.ItemContainerStyle>
+                                            <Style BasedOn="{StaticResource MemberListBoxItemStyle}" TargetType="ListBoxItem">
+                                                <Style.Setters>
+                                                    <!--  禁用涟漪动画  -->
+                                                    <Setter Property="materialDesign:RippleAssist.IsDisabled" Value="True" />
+                                                    <Setter Property="Padding" Value="0" />
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource MaterialDesignSelection}" />
+                                                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                                                </Style.Setters>
+                                            </Style>
+                                        </ListBox.ItemContainerStyle>
+                                    </ListBox>
+                                </Grid>
+                                <!--  右边布局  -->
+                                <Grid
+                                    Name="gd_Right"
+                                    Grid.Row="1"
+                                    Grid.Column="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="30" />
+                                        <RowDefinition />
+                                        <RowDefinition Height="50" />
+                                    </Grid.RowDefinitions>
+                                    <!--  提示的Label  -->
+                                    <TextBlock
+                                        Name="lbl_Tips"
+                                        Grid.Row="0"
+                                        Height="26"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        FontSize="14"
+                                        Foreground="Black"
+                                        Text="已选择" />
+                                    <!--  已选中的用户  -->
+                                    <!--  ItemsSource="{Binding ElementName=Lb_Friends,Path=SelectedItems}"  -->
+                                    <ScrollViewer
+                                        Grid.Row="1"
+                                        Height="200"
+                                        Opacity="1">
+                                        <ItemsControl x:Name="Lb_Selectend" ItemsSource="{Binding SelectedMember}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <materialDesign:Chip
+                                                        Margin="0,4"
+                                                        Content="{Binding ShowTitle}"
+                                                        DeleteToolTip="移除">
+                                                        <!--
+                                                            IsDeletable="True"
+                                                            DeleteCommandParameter="{Binding }"
+                                                            DeleteCommand="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}},Path=DataContext.RemoveSelectedCommand}"
+                                                        -->
+                                                        <!--<materialDesign:Chip.Icon>
+                                                            <userControls1:Avator Userid="{Binding Jid}" />
+                                                        </materialDesign:Chip.Icon>-->
+                                                    </materialDesign:Chip>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel VerticalAlignment="Stretch" Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                    <!--  选中的用户  -->
+                                    <StackPanel
+                                        Grid.Row="2"
+                                        Grid.ColumnSpan="2"
+                                        VerticalAlignment="Stretch"
+                                        FlowDirection="RightToLeft"
+                                        Orientation="Horizontal">
+                                        <Button
+                                            x:Name="btn_Confirm"
+                                            Width="64"
+                                            Height="32"
+                                            Margin="16,4"
+                                            materialDesign:RippleAssist.IsDisabled="True"
+                                            Command="{Binding ConfirmInviteCommand}"
+                                            Content="确定"
+                                            FontSize="15"
+                                            Foreground="White"
+                                            IsEnabled="{Binding EnableCreate}"
+                                            Style="{StaticResource MaterialDesignRaisedAccentButton}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </StepControl:Step.Content>
+                    </StepControl:Step>
+                </controls:Stepper.Steps>
+            </controls:Stepper>
+            <!--  提示消息  -->
+            <materialDesign:Snackbar VerticalAlignment="Bottom" MessageQueue="{Binding Snackbar}" />
+        </Grid>
+    </Border>
+</Window>

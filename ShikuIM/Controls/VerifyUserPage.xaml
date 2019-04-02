@@ -1,0 +1,273 @@
+﻿<UserControl
+    x:Class="ShikuIM.View.VerifyUserListControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converter="clr-namespace:ShikuIM.Converter"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:localbase="clr-namespace:ShikuIM"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:ShikuIM.Model"
+    xmlns:view="clr-namespace:ShikuIM.View"
+    xmlns:viewmodel="clr-namespace:ShikuIM.ViewModel"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch"
+    d:DesignHeight="250"
+    d:DesignWidth="250"
+    FontFamily="微软雅黑"
+    mc:Ignorable="d">
+    <!--  DataContext="{Binding Source={StaticResource Locator},Path=UserVerify}"  -->
+    <UserControl.Resources>
+        <!--  弹出框  -->
+        <DataTemplate DataType="{x:Type model:VerifingFriend}">
+            <Grid
+                Height="auto"
+                MinWidth="280"
+                MinHeight="168"
+                MaxWidth="448"
+                MaxHeight="350">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="9*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <!--  关闭按钮  -->
+                <Button
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Width="36"
+                    Height="36"
+                    Margin="0,0"
+                    Padding="0"
+                    VerticalAlignment="Top"
+                    Panel.ZIndex="2"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    materialDesign:RippleAssist.RippleSizeMultiplier="0.5"
+                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                    Content="{materialDesign:PackIcon Kind=Close,
+                                                      Size=24}"
+                    Foreground="#000"
+                    Style="{StaticResource MaterialDesignToolButton}" />
+                <!--  回话目标用户  -->
+                <TextBlock
+                    Grid.Column="1"
+                    Margin="0,16,0,0"
+                    FontSize="13"
+                    Text="{Binding toNickname}"
+                    TextTrimming="CharacterEllipsis"
+                    Visibility="Collapsed" />
+                <TextBox
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    MaxWidth="350"
+                    Margin="16"
+                    materialDesign:HintAssist.Hint="回话内容"
+                    FontFamily="微软雅黑"
+                    FontSize="15"
+                    FontWeight="Black"
+                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                    Text="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AnswerContnt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    TextWrapping="Wrap" />
+                <!--  操作按钮  -->
+                <StackPanel
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="2"
+                    Margin="0,0,0,8"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Orientation="Horizontal">
+                    <!--  发送按钮  -->
+                    <Button
+                        x:Name="btn_reSend"
+                        Width="64"
+                        Height="36"
+                        Margin="8,0,16,0"
+                        Padding="2"
+                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AnswerActionCommand}"
+                        CommandParameter="{Binding}"
+                        FontSize="15"
+                        FontWeight="Medium"
+                        Foreground="#fff"
+                        IsEnabled="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.VarifyBtnSendEnable}"
+                        Style="{DynamicResource MaterialDesignRaisedAccentButton}">
+                        <Button.Content>
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <ProgressBar
+                                    Width="24"
+                                    Height="24"
+                                    IsIndeterminate="True"
+                                    Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                    Visibility="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ProgressbarVisible, Converter={StaticResource BoolToVisiblityConverter}, Mode=TwoWay}"
+                                    Value="0" />
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Text="发送"
+                                    Visibility="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AnswerTxtVisible, Converter={StaticResource BoolToVisiblityConverter}, Mode=TwoWay}" />
+                            </Grid>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid Background="{DynamicResource MaterialDesignBackground}">
+        <!--  回话弹出框容器  -->
+        <materialDesign:DialogHost
+            Grid.RowSpan="10"
+            Grid.Column="0"
+            Grid.ColumnSpan="9"
+            IsOpen="{Binding DialogShow}">
+            <!--  验证中的好友  -->
+            <!--  Style="{StaticResource MaterialDesignListView}"  -->
+            <ListBox
+                Margin="0,56,0,0"
+                Background="{DynamicResource MaterialDesignBackground}"
+                BorderThickness="0"
+                ItemsSource="{Binding VerifyUserList}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <!--  BasedOn="{StaticResource MaterialDesignListBoxItem}"  -->
+                        <Style.Setters>
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu>
+                                        <MenuItem Command="{Binding DeleteVerifyItemCommand}" Header="删除" />
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                        <!--  标题  -->
+                                        <Border
+                                            Padding="8"
+                                            Background="{DynamicResource MaterialDesignPaper}"
+                                            BorderBrush="#12000000"
+                                            BorderThickness="0,0,0,1">
+                                            <Grid
+                                                Margin="32,8"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="64" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="48" Height="48">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect
+                                                            BlurRadius="3"
+                                                            Opacity="0.3"
+                                                            ShadowDepth="0.8"
+                                                            Color="Black" />
+                                                    </Border.Effect>
+                                                    <Button
+                                                        Width="48"
+                                                        Height="48"
+                                                        Padding="0"
+                                                        VerticalAlignment="Top"
+                                                        materialDesign:RippleAssist.IsCentered="True"
+                                                        materialDesign:RippleAssist.RippleSizeMultiplier="0.5"
+                                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.CheckDetailCommand}"
+                                                        CommandParameter="{Binding toUserId}"
+                                                        FocusVisualStyle="{StaticResource NullFocusStyle}"
+                                                        Style="{StaticResource MaterialDesignToolButton}">
+                                                        <Ellipse
+                                                            Width="48"
+                                                            Height="48"
+                                                            HorizontalAlignment="Left"
+                                                            RenderOptions.BitmapScalingMode="Fant">
+                                                            <Ellipse.Fill>
+                                                                <ImageBrush ImageSource="{Binding toUserId, Converter={StaticResource UserIdToPathConverter}}" />
+                                                            </Ellipse.Fill>
+                                                        </Ellipse>
+                                                    </Button>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                                                    <TextBlock
+                                                        MaxWidth="400"
+                                                        Margin="8,0"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        FontSize="17"
+                                                        FontWeight="Bold"
+                                                        Text="{Binding toNickname, Mode=TwoWay}"
+                                                        TextTrimming="WordEllipsis"
+                                                        ToolTip="{Binding toNickname}" />
+                                                    <TextBlock
+                                                        MaxWidth="390"
+                                                        Margin="8,4"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Bottom"
+                                                        FontSize="15"
+                                                        Text="{Binding Content}"
+                                                        TextWrapping="Wrap" />
+                                                </StackPanel>
+                                                <StackPanel
+                                                    Grid.Column="2"
+                                                    HorizontalAlignment="Right"
+                                                    Orientation="Horizontal">
+                                                    <Button
+                                                        Width="80"
+                                                        Height="36"
+                                                        Margin="8,0"
+                                                        Padding="0"
+                                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AgreeCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                                        Visibility="{Binding CanAgree, Converter={StaticResource BoolToVisiblityConverter}}">
+                                                        <Grid VerticalAlignment="Center">
+                                                            <!--  IsEnabled="{Binding RelativeSource={RelativeSource AncestorType=UserControl},Path=DataContext.AgreeTxtVisible}"  -->
+                                                            <TextBlock Text="{Binding StatusTag}" Visibility="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AgreeTxtVisible, Converter={StaticResource BoolToVisiblityConverter}}" />
+                                                            <ProgressBar
+                                                                Width="24"
+                                                                Height="24"
+                                                                Foreground="#FFF"
+                                                                IsIndeterminate="True"
+                                                                Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                                                Visibility="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.AgreeProgressVisible, Converter={StaticResource BoolToVisiblityConverter}}"
+                                                                Value="0" />
+                                                        </Grid>
+                                                    </Button>
+                                                    <Button
+                                                        Width="72"
+                                                        Height="36"
+                                                        Margin="8,0"
+                                                        Padding="0"
+                                                        Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Content="回话"
+                                                        Style="{StaticResource MaterialDesignFlatButton}"
+                                                        Visibility="{Binding CanAnswer, Converter={StaticResource BoolToVisiblityConverter}}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="materialDesign:RippleAssist.IsDisabled" Value="False" />
+                        </Style.Setters>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </materialDesign:DialogHost>
+        <!--  提示消息  -->
+        <materialDesign:Snackbar
+            x:Name="snack_Notice"
+            Grid.Row="2"
+            Grid.RowSpan="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Width="140"
+            Height="36"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            MessageQueue="{Binding SnackBar}" />
+    </Grid>
+</UserControl>

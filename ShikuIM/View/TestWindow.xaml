@@ -1,0 +1,54 @@
+﻿<Window x:Class="ShikuIM.TestingWindow" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openx  mlformats.org/markup-compatibility/2006" 
+        xmlns:local="clr-namespace:ShikuIM" 
+        xmlns:materialDesign ="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity" 
+        xmlns:command="http://www.galasoft.ch/mvvmlight" 
+        xmlns:usercontrols="clr-namespace:ShikuIM.UserControls" 
+        xmlns:wpf="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf" 
+        Title="XmppTest" Height="562" Width="600" >
+    <Grid Width="256" Height="480" Background="{DynamicResource MaterialDesignPaper}">
+
+        <ListBox Padding="0" Background="#282e33" >
+            <ListBoxItem HorizontalContentAlignment="Stretch" Padding="0" >
+                <Grid Height="56" HorizontalAlignment="Stretch" >
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="3*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="64" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.RowSpan="3" CornerRadius="112" Margin="8 4"
+                            Background="#65aadd" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                        <materialDesign:PackIcon Foreground="#fff" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                                 Kind="File" Width="32" Height="32" />
+                    </Border>
+
+                    <TextBlock Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}" 
+                               VerticalAlignment="Bottom"   
+                               Text="123.jpg" Grid.Column="1" />
+                    <TextBlock Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" 
+                               VerticalAlignment="Bottom" 
+                               Text="456.jpg" Grid.Column="1" Grid.Row="1" />
+
+                    <TextBlock Foreground="{DynamicResource PrimaryHueMidForegroundBrush}" 
+                               VerticalAlignment="Bottom" 
+                               Text="456.jpg" Grid.Column="1" Grid.Row="1" />
+
+                </Grid>
+            </ListBoxItem>
+
+        </ListBox>
+        <Button 
+            VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="16" Focusable="False"
+            Style="{StaticResource MaterialDesignFloatingActionMiniAccentButton}"  >
+            <materialDesign:PackIcon Foreground="#FFF" Kind="Plus" Width="24" Height="24" />
+        </Button>
+    </Grid>
+</Window>

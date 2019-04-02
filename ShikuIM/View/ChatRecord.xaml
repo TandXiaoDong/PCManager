@@ -1,0 +1,49 @@
+﻿<Window x:Class="ShikuIM.ChatRecord" 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:ShikuIM"
+        xmlns:userControl="clr-namespace:ShikuIM.UserControls"
+        xmlns:convert="clr-namespace:ShikuIM.Converter"
+        Background="Transparent" AllowsTransparency="True" WindowStyle="None"
+        mc:Ignorable="d"
+        Title="聊天记录" Height="680" Width="560" Closing="Window_Closing" Loaded="Window_Loaded" MouseDown="UIElement_OnMouseLeftButtonDown" >
+    <Border Margin="15" CornerRadius="4" Background="#FFF">
+        <Border.Effect>
+            <DropShadowEffect ShadowDepth="0.2" Color="Black"  Opacity="0.2" BlurRadius="20"/>
+        </Border.Effect>
+        <Grid x:Name="gd_body">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBox x:Name="tb_keyword" materialDesign:HintAssist.Hint="搜索" Margin="0,20,0,5" Width="300" HorizontalAlignment="Center" Text="{Binding keyWords, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="tb_keyword_TextChanged"></TextBox>
+            
+            <ScrollViewer x:Name="scr" Grid.Row="1" Margin="0" VerticalScrollBarVisibility="Auto" Background="#F5F5F5" Padding="30,0">
+                <ListView Style="{x:Null}" x:Name="itemsControl" Background="Transparent" BorderThickness="0" materialDesign:RippleAssist.IsDisabled="True" HorizontalContentAlignment="Stretch" ItemsSource="{Binding msgList}">
+                    <ListView.Resources>
+                        <Style TargetType="{x:Type ListViewItem}" >
+                            <Style.Resources>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Transparent"/>
+                            </Style.Resources>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.Resources>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <userControl:ChatRecordItem Message="{Binding}"/>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>

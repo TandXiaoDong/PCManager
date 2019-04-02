@@ -1,0 +1,405 @@
+﻿<Window x:Class="ShikuIM.View.GroupSetting"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:viewmodels="clr-namespace:ShikuIM.ViewModel" 
+        xmlns:converter="clr-namespace:ShikuIM.Converter"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:usercontrols="clr-namespace:ShikuIM.UserControls"
+        Width="360" Height="616" 
+        mc:Ignorable="d" FontFamily="微软雅黑"  Closing="Window_Closing"
+        Title="">
+    <Window.Resources>
+        <converter:RoomCreateDateConverter x:Key="CreateDateConverter" />
+        <!--不同的右键菜单模板-->
+
+    </Window.Resources>
+    <Border CornerRadius="2" Background="#FFF" Margin="10" >
+        <Grid x:Name="gd_main">
+            <!--提示消息控件-->
+            <materialDesign:Snackbar
+                   x:Name="snackbar_Notice" />
+            <materialDesign:Transitioner x:Name="Cards" 
+	                Margin="0" SelectedIndex="1">
+                <materialDesign:TransitionerSlide>
+                    <materialDesign:ColorZone
+			                  HorizontalAlignment="Stretch" 
+			                  VerticalAlignment="Stretch" >
+                        <StackPanel>
+                            <Grid>
+                            <Button 
+                                    Command="{x:Static materialDesign:Transitioner.MoveNextCommand}" 
+                                    materialDesign:RippleAssist.IsCentered="True" 
+                                    materialDesign:RippleAssist.ClipToBounds="False" 
+                                    Style="{StaticResource MaterialDesignFlatButton}" 
+                                    Width="32" Height="32" Padding="0" 
+                                    VerticalAlignment="Top" HorizontalAlignment="Left" 
+                                    Foreground="Gray" 
+                                    Content="{materialDesign:PackIcon Kind=ArrowLeft, Size=24}" 
+                                    />
+                                <TextBlock FontSize="15"
+                                   Text="设置" SnapsToDevicePixels="True" 
+                                   RenderOptions.BitmapScalingMode="Fant" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="24"
+                                   Foreground="Black" />
+                            </Grid>
+                            <Grid Margin="0,10,0,2">
+                                <Label VerticalAlignment="Center" HorizontalAlignment="Left">群内昵称</Label>
+                                <Label VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,28,0"></Label>
+                                <Button VerticalAlignment="Center" HorizontalAlignment="Right" Width="25" Height="25" Visibility="{Binding EditNameVIsible,Converter={StaticResource BoolToVisiblityConverter}}"
+                                                 materialDesign:RippleAssist.RippleSizeMultiplier="0.75" 
+                                                 Command="{Binding EditGroupNameCommand}" 
+	                                             Style="{StaticResource MaterialDesignToolForegroundButton}" 
+                                                 materialDesign:RippleAssist.IsCentered="True" 
+                                                 ToolTip="编辑群名片" >
+                                    <materialDesign:PackIcon 
+		                                         Width="15" Height="15" 
+		                                         Kind="Pencil" />
+                                </Button>
+                            </Grid>
+                            <Grid Margin="2">
+                                <Label VerticalAlignment="Center" HorizontalAlignment="Left">消息免打扰</Label>
+                                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right"></CheckBox>
+                            </Grid>
+                            <Grid Margin="2">
+                                <Label VerticalAlignment="Center" HorizontalAlignment="Left">开启群验证</Label>
+                                <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right"></CheckBox>
+                            </Grid>
+                            <Button Content="群共享文件" Width="100" Height="25" Margin="2" Click="Button_Click"></Button>
+                        </StackPanel>
+                    </materialDesign:ColorZone>
+                </materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide>
+                    <materialDesign:ColorZone
+			                  HorizontalAlignment="Stretch" 
+			                  VerticalAlignment="Stretch" >
+                        <Grid x:Name="gd_base"  >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="50*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0"/>
+                                <RowDefinition MinHeight="112" Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <!--<RowDefinition Height="0"/>-->
+                                <RowDefinition  Height="auto" />
+                                <RowDefinition Height="2*"  />
+                            </Grid.RowDefinitions>
+                            <!--弹出框结束-->
+                            <!--群聊基本信息-->
+                            <StackPanel HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Top"
+                                        Grid.Column="1" Height="Auto" Width="Auto" Margin="6 24 6 6">
+                                <!--群聊名称-->
+                                <Grid>
+                                    <Button 
+                                                VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                materialDesign:RippleAssist.RippleSizeMultiplier="0.75" 
+			                                    Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}"
+	                                            Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                                                materialDesign:RippleAssist.IsCentered="True" 
+                                                Visibility="{Binding MemberAddVisible,Converter={StaticResource BoolToVisiblityConverter}}"
+	                                            ToolTip="设置" >
+                                        <materialDesign:PackIcon Foreground="Gray" 
+		                                        Width="24" Height="24" RenderOptions.BitmapScalingMode="HighQuality"
+		                                        Kind="DotsVertical" />
+                                    </Button>
+                                </Grid>
+                                <StackPanel Orientation="Horizontal" >
+                                    <!--编辑时显示文本编辑框, 未编辑时显示标题-->
+                                    <!--Visibility="{Binding IsGroupNameEditing,Converter={StaticResource BoolToVisiblityConverter},ConverterParameter=1}"-->
+                                    <TextBlock Name="lbl_GroupName" 
+                                               Foreground="Black" Margin="4 0" MaxWidth="240" TextTrimming="WordEllipsis" 
+                                               Text="{Binding ThisRoom.name}" FontSize="23" />
+                                    <!--x:Name="btn_EditName"-->
+                                    <Button 
+                                                 Width="25" Height="25" Visibility="{Binding EditNameVIsible,Converter={StaticResource BoolToVisiblityConverter}}"
+                                                 materialDesign:RippleAssist.RippleSizeMultiplier="0.75" 
+                                                 Command="{Binding EditGroupNameCommand}" 
+	                                             Style="{StaticResource MaterialDesignToolForegroundButton}" 
+                                                 materialDesign:RippleAssist.IsCentered="True" 
+                                                 ToolTip="编辑群名称" >
+                                        <materialDesign:PackIcon 
+		                                         Width="15" Height="15" 
+		                                         Kind="Pencil" />
+                                    </Button>
+                                </StackPanel>
+                                <!--创建日期-->
+                                <TextBlock Name="lbl_CreateDate" Margin="4 2 0 4" 
+                                                           FontSize="13" Text="{Binding ThisRoom,Converter={StaticResource CreateDateConverter}}" />
+                                <!--房间公告-->
+                                <materialDesign:Card 
+                                                 Padding="0 2" 
+                                                 materialDesign:ShadowAssist.ShadowDepth="Depth1" 
+                                                 materialDesign:HintAssist.IsFloating="True" 
+                                                 HorizontalAlignment="Stretch" >
+                                    <StackPanel>
+                                        <StackPanel.Resources>
+                                            <Style TargetType="Control" x:Key="FocusStyle" >
+                                            </Style>
+                                        </StackPanel.Resources>
+                                        <!--公告面板-->
+                                        <Grid HorizontalAlignment="Stretch" >
+                                            <TextBlock  Text="公告"  FontSize="13" Margin="4 0" 
+                                                                VerticalAlignment="Top" HorizontalAlignment="Left" 
+                                                                Width="auto" Height="auto" />
+                                            <Button Name="txt_Desc" Margin="0 16 0 0" 
+                                                        materialDesign:RippleAssist.ClipToBounds="True" 
+                                                        Style="{StaticResource MaterialDesignToolForegroundButton}" 
+                                                        FontSize="13" FocusVisualStyle="{StaticResource FocusStyle}" 
+                                                        Padding="4 2 0 4" Height="auto" 
+                                                        VerticalContentAlignment="Center" HorizontalContentAlignment="Left" 
+                                                        HorizontalAlignment="Stretch" 
+                                                        >
+                                                <ScrollViewer   MaxHeight="112" VerticalScrollBarVisibility="Auto" >
+                                                    <TextBlock TextWrapping="Wrap"  MaxWidth="300" 
+                                                                   Text="{Binding ThisRoom.desc}" />
+                                                </ScrollViewer>
+                                            </Button>
+                                            <Button 
+                                                            x:Name="btn_Notice" 
+                                                            VerticalAlignment="Top" HorizontalAlignment="Left" 
+                                                            Width="20" Height="20" Padding="0" Margin="32 0 0 0" 
+                                                            Visibility="{Binding EditDescVisible,Converter={StaticResource BoolToVisiblityConverter},FallbackValue=true}" 
+                                                            Command="{Binding EditGroupDescCommand}" 
+                                                            materialDesign:RippleAssist.RippleSizeMultiplier="0.75" 
+	                                                        Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                                                            materialDesign:RippleAssist.IsCentered="True" 
+	                                                        ToolTip="编辑群公告" >
+                                                <materialDesign:PackIcon
+		                                                        Width="16" Height="16" 
+		                                                        Kind="Pencil" />
+                                            </Button>
+                                        </Grid>
+                                    </StackPanel>
+                                </materialDesign:Card>
+                            </StackPanel>
+                            <!--成员和搜索成员-->
+                            <Grid Grid.Column="1" Grid.Row="2" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                                <!--<WrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">-->
+                                <!--<materialDesign:ColorZone Mode="Standard" CornerRadius="4" 
+                                                 materialDesign:ShadowAssist.ShadowDepth="Depth0" 
+                                                 HorizontalAlignment="Left" >-->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" >
+                                    <TextBox
+                                                 FontSize="13" Margin="8 0 0 0" Height="auto" 
+                                                 MinWidth="150" MaxWidth="300"  
+                                                 VerticalAlignment="Center" HorizontalAlignment="Stretch" 
+                                                 materialDesign:HintAssist.Hint="{Binding HintOfSearch,Mode=TwoWay}" 
+                                                 Text="{Binding SearchText,UpdateSourceTrigger=PropertyChanged}" >
+                                        <TextBox.InputBindings>
+                                            <KeyBinding Key="Esc" Command="{Binding CancelSearchCommand}" />
+                                        </TextBox.InputBindings>
+                                    </TextBox>
+                                    <Button
+                                                        x:Name="btn_Search" Command="{Binding SearchCommand}"
+                                                        materialDesign:RippleAssist.RippleSizeMultiplier="0.75" 
+	                                                    Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                                                        materialDesign:RippleAssist.IsCentered="True" Padding="0"
+                                                        Height="auto" Width="auto" VerticalAlignment="Center"
+	                                                    ToolTip="搜索成员" >
+                                        <materialDesign:PackIcon Foreground="Gray"
+		                                                    Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality"
+		                                                    Kind="magnify" />
+                                    </Button>
+                                </StackPanel>
+                                <!--</materialDesign:ColorZone>-->
+                                <!--</WrapPanel>
+                                        <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Center">-->
+                                <!--邀请进群按钮-->
+                                <Button 
+                                                x:Name="btn_MemberAdd" 
+                                                VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                materialDesign:RippleAssist.RippleSizeMultiplier="0.75" 
+			                                    Command="{x:Static materialDesign:Transitioner.MoveNextCommand}"
+	                                            Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                                                materialDesign:RippleAssist.IsCentered="True" 
+                                                Visibility="{Binding MemberAddVisible,Converter={StaticResource BoolToVisiblityConverter}}"
+	                                            ToolTip="邀请好友" >
+                                    <materialDesign:PackIcon Foreground="Gray" 
+		                                        Width="24" Height="24" RenderOptions.BitmapScalingMode="HighQuality"
+		                                        Kind="Plus" />
+                                </Button>
+                            </Grid>
+                            <!--成员列表-->
+                            <!--<Grid 
+                                        HorizontalAlignment="Stretch" Margin="0 8"
+                                        VerticalAlignment="Stretch">-->
+                            <!--群聊成员列表-->
+                            <ScrollViewer Grid.Column="1" Grid.Row="3" 
+                                            VerticalScrollBarVisibility="Auto" Margin="2 8 0 0 "
+                                             Grid.RowSpan="1" MaxHeight="350" >
+                                <ItemsControl x:Name="itemsControl" 
+                                                ItemsSource="{Binding Path=MembersList}" >
+                                    <ItemsControl.ItemTemplate >
+                                        <!--群成员样式-->
+                                        <DataTemplate >
+                                            <Button 
+                                                            Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                                                            materialDesign:RippleAssist.ClipToBounds="True" 
+                                                            Width="64" Height="80" Padding="0" 
+                                                            Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}},Path=DataContext.DetailCommand}" 
+                                                            CommandParameter="{Binding userId}"
+                                                            materialDesign:RippleAssist.IsCentered="True" >
+                                                <Border Width="64" Margin="0" HorizontalAlignment="Stretch"   x:Name="button"
+                                                                Padding="0"  CornerRadius="8" >
+                                                    <Grid Height="80" >
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="3*" />
+                                                            <RowDefinition />
+                                                        </Grid.RowDefinitions>
+                                                        <!--头像-->
+                                                        <usercontrols:Avator x:Name="ellipse" Height="40" Width="40" Panel.ZIndex="3" 
+                                                                       Tag="{Binding userId}" Cursor="Hand" Margin="4 0" 
+                                                                       RenderOptions.BitmapScalingMode="HighQuality" 
+                                                                       VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                                                       Userid="{Binding userId}"  />
+                                                        <!--成员的等级-->
+                                                        <Image Width="20" Height="20" Panel.ZIndex="3"
+                                                                            Source="{Binding role,Converter={StaticResource GroupAccessConverter},ConverterParameter=1}"
+                                                                            ToolTip="{Binding role,Converter={StaticResource GroupAccessConverter}}"
+                                                                            HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                                                        <!--昵称-->
+                                                        <TextBlock Grid.Row="1" FontSize="13" 
+                                                                         HorizontalAlignment="Center" VerticalAlignment="Center"  ToolTip="{Binding nickname}"
+                                                                         Text="{Binding nickname}" TextTrimming="CharacterEllipsis" MaxWidth="56" />
+                                                        <!--编辑框-->
+                                                        <!--<Button Panel.ZIndex="3"
+                                                                        Grid.Row="0" Width="16" Height="16" Padding="0"
+                                                                        materialDesign:RippleAssist.RippleSizeMultiplier="0.5"
+                                                                        VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                                        Style="{StaticResource MaterialDesignToolForegroundButton}" 
+                                                                        Content="{materialDesign:PackIcon Kind=DotsHorizontal}" >
+                                                                    </Button>-->
+                                                    </Grid>
+                                                </Border>
+                                            </Button>
+                                            <!--<DataTemplate.Triggers>
+                                                <EventTrigger RoutedEvent="FrameworkElement.Unloaded" SourceName="button">
+                                                    <BeginStoryboard x:Name="OnUnloaded1_BeginStoryboard" Storyboard="{StaticResource OnUnloaded1}"/>
+                                                </EventTrigger>
+                                                <EventTrigger RoutedEvent="FrameworkElement.Loaded" SourceName="button">
+                                                    <BeginStoryboard Storyboard="{StaticResource OnLoaded1}"/>
+                                                </EventTrigger>
+                                                <EventTrigger RoutedEvent="FrameworkElement.Loaded" SourceName="ellipse">
+                                                    <BeginStoryboard x:Name="OnLoaded2_BeginStoryboard" Storyboard="{StaticResource OnLoaded2}"/>
+                                                </EventTrigger>
+                                                <Trigger Property="IsMouseOver" Value="True" >
+                                                    <Setter TargetName="button" Property="Background" Value="#88D5D5D5" />
+                                                </Trigger>
+                                            </DataTemplate.Triggers>-->
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.Resources>
+                                        <!--取消默认聚焦样式-->
+                                        <Style TargetType="Control" >
+                                            <Setter Property="FocusVisualStyle"  Value="{x:Null}" />
+                                        </Style>
+                                    </ItemsControl.Resources>
+                                    <!--使用自动换行面板-->
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate >
+                                            <WrapPanel VerticalAlignment="Stretch" Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            <!--</Grid>-->
+                            <!--退出此群-->
+                            <Button 
+                                      x:Name="btn_Quit" 
+                                      Grid.Row="5" Grid.Column="1" 
+	                                  Width="112" Height="36" Panel.ZIndex="5"
+                                      VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0 0 0 8" 
+	                                  Style="{StaticResource MaterialDesignRaisedButton}" 
+                                      materialDesign:ShadowAssist.ShadowDepth="Depth1" 
+                                      Content="{Binding ExitBtnContent}" 
+                                      Command="{Binding QuitOrDeleteCommand}" />
+                        </Grid>
+                    </materialDesign:ColorZone>
+                </materialDesign:TransitionerSlide>
+                <materialDesign:TransitionerSlide>
+                    <materialDesign:ColorZone
+			            HorizontalAlignment="Stretch"
+			             VerticalAlignment="Stretch" >
+                        <Grid Name="gd_Main" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="24" />
+                                <RowDefinition Height="32"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="16"/>
+                                <RowDefinition Height="48"/>
+                                <RowDefinition Height="8"/>
+                            </Grid.RowDefinitions>
+                            <Button 
+                                    Grid.RowSpan="2"
+                                    Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}" 
+                                    materialDesign:RippleAssist.IsCentered="True" 
+                                    materialDesign:RippleAssist.ClipToBounds="False" 
+                                    Style="{StaticResource MaterialDesignFlatButton}" 
+                                    Width="32" Height="32" Padding="0" 
+                                    VerticalAlignment="Top" HorizontalAlignment="Left" 
+                                    Foreground="Gray" 
+                                    Content="{materialDesign:PackIcon Kind=ArrowLeft, Size=24}" 
+                                    />
+                            <TextBlock FontSize="15" Grid.Row="1" 
+                                   Text="我的好友" SnapsToDevicePixels="True" 
+                                   RenderOptions.BitmapScalingMode="Fant" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="24"
+                                   Foreground="Black" />
+                            <!--好友-->
+                            <ListBox x:Name="Lb_Friends" SelectionMode="Multiple" Grid.Row="2" 
+                                      HorizontalAlignment="Stretch" Margin="24 0" 
+                                      ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                                      ItemsSource="{Binding FriendList}" 
+                                      ItemsPanel="{StaticResource ListBoxFluidMoveTemplate}" 
+                                       >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding FriendsSelectionChanged}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListBoxItem}" 
+                                           BasedOn="{StaticResource MemberListBoxItemStyle}" >
+                                        <!--<Setter Property="IsSelected" Value="{Binding IsSelect}"  />-->
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                            </ListBox>
+
+                            <!--选中的用户-->
+                            <StackPanel Grid.Row="4" Margin="16 0"
+                                 HorizontalAlignment="Right"    VerticalAlignment="Center"
+                                 Orientation="Horizontal" >
+                                <!--提示-->
+                                <!--<Label Name="lbl_Hint" Foreground="Red"></Label>-->
+                                <!--<Button 
+                                      x:Name="btn_Cancel" 
+                                      Width="50" Height="36" Margin="0 0 10 0 " 
+                                      Click="cancel_Click" 
+                                      HorizontalAlignment="Right" 
+			                          Command="{x:Static materialDesign:Transitioner.MovePreviousCommand}" 
+                                      VerticalAlignment="Bottom" Padding="2" 
+                                      materialDesign:RippleAssist.RippleSizeMultiplier="0.5" 
+                                      materialDesign:RippleAssist.IsCentered="True" 
+	                                  Style="{StaticResource MaterialDesignToolButton}" 
+	                                  Content="返回"/>-->
+                                <Button
+                                      x:Name="btn_Confirm"  Width="64" Height="36"
+                                      Command="{Binding InviteFriendCommand}"
+                                      HorizontalAlignment="Right" 
+                                      VerticalAlignment="Bottom" Foreground="#FFF"
+	                                  Style="{StaticResource MaterialDesignRaisedAccentButton}"
+	                                  Content="邀请"/>
+                            </StackPanel>
+                        </Grid>
+                    </materialDesign:ColorZone>
+                </materialDesign:TransitionerSlide>
+            </materialDesign:Transitioner>
+
+        </Grid>
+    </Border>
+</Window>

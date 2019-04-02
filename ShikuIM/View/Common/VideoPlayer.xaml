@@ -1,0 +1,68 @@
+﻿<Window
+    x:Class="ShikuIM.VideoPlayer" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:ShikuIM" xmlns:materialdesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:wpf="clr-namespace:Vlc.DotNet.Wpf;assembly=Vlc.DotNet.Wpf"
+    Title="VideoPlayer"
+    Background="{StaticResource TransDarkBrush}"
+    KeyDown="Window_KeyDown" Loaded="Window_Loaded"
+    WindowStartupLocation="CenterScreen" WindowState="Maximized"
+    WindowStyle="None" mc:Ignorable="d">
+    <Grid>
+        <!--  Close Button  -->
+        <Button
+            Width="40" Height="40"
+            Padding="0" HorizontalAlignment="Right"
+            VerticalAlignment="Top" Panel.ZIndex="2"
+            Click="Close_Click"
+            Style="{StaticResource MaterialDesignFlatButton}">
+            <materialdesign:PackIcon
+                Width="32" Height="32"
+                Kind="Close" />
+        </Button>
+
+        <DockPanel Margin="0,10" Panel.ZIndex="2">
+            <Button
+                Width="32" Height="32"
+                Padding="0"
+                VerticalAlignment="Bottom" 
+                Click="Voice_Click"
+                ToolTip="{Binding VoiceOn}">
+                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding VoicePicturePath}" />
+            </Button>
+            
+            <Button
+                Width="32" Height="32"
+                Padding="0"
+                VerticalAlignment="Bottom"
+                Click="Video_Click"
+                ToolTip="{Binding PlayOrStop}">
+                <Image RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding PlayPicturePath}" />
+            </Button>
+        </DockPanel>
+
+        <!--  播放器  -->
+        <wpf:VlcControl
+            x:Name="Player" HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" Background="#00000000"
+            Cursor="Hand" />
+
+        <Grid
+            Height="64" HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom" Background="#00000000"
+            Visibility="Collapsed">
+            <StackPanel>
+                <Slider
+                    Margin="4,2" HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top" />
+                <Button
+                    Width="48" Height="48"
+                    materialdesign:RippleAssist.IsCentered="True"
+                    Content="{materialdesign:PackIcon Kind=Play,
+                                                      Size=36}"
+                    Style="{StaticResource MaterialDesignToolButton}" />
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+</Window>

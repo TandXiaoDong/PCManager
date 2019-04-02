@@ -1,0 +1,85 @@
+﻿<Window x:Class="ShikuIM.LoginSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:validation="clr-namespace:ShikuIM.Validation"
+        xmlns:local="clr-namespace:ShikuIM" 
+        xmlns:convert="clr-namespace:ShikuIM.Converter"
+        xmlns:usercontrols="clr-namespace:ShikuIM.UserControls" 
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        mc:Ignorable="d" WindowStyle="None" Background="Transparent" 
+        AllowsTransparency="True"
+        Title="设置" Height="240" Width="380" 
+        Loaded="Window_Loaded" WindowStartupLocation="CenterScreen"  
+        >
+    <WindowChrome.WindowChrome>
+        <WindowChrome ResizeBorderThickness="15" CaptionHeight="0"  />
+    </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <convert:QRCodeConverter x:Key="QRCodeConverter" />
+    </Window.Resources>
+    <Grid x:Name="body" Margin="15" Effect="{StaticResource WindowShadow}" >
+        <Border  CornerRadius="5" Background="#FFF"  >
+            <Grid x:Name="gd_main" >
+                <TabControl TabStripPlacement="Top" 
+                            Style="{StaticResource AboutTabControlStyle}" 
+                            ItemContainerStyle="{DynamicResource AboutTabItemStyle}" >
+                    <TabItem  >
+                        <TabItem.Header >
+                            <TextBlock Text="登录设置" />
+                        </TabItem.Header>
+                        <TabItem.Content>
+                            <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+                                <WrapPanel HorizontalAlignment="Center">
+                                    <DockPanel Margin="10" Width="280" Height="40" VerticalAlignment="Top">
+                                        <materialDesign:PackIcon
+                                            Width="20" Height="20"
+                                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                            Foreground="Gray" Kind="Server" />
+                                        <TextBox
+                                            x:Name="tb_InitialServer"
+                                            Padding="0" materialDesign:HintAssist.Hint="服务器地址"
+                                            FontSize="15">
+                                            <!--<TextBox.Text>
+                                            <Binding Path="InitialServer">
+                                                <Binding.ValidationRules>
+                                                    <validation:NotNullValidationRules FieldName="服务器地址" />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>-->
+                                        </TextBox>
+                                    </DockPanel>
+
+                                    <DockPanel Margin="10" Width="280" Height="40" VerticalAlignment="Top">
+                                        <materialDesign:PackIcon
+                                            Width="20" Height="20"
+                                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                                            Foreground="Gray" Kind="ServerNetwork" />
+                                        <TextBox
+                                            x:Name="tb_InitialServerOfKey"
+                                            Padding="0" materialDesign:HintAssist.Hint="服务器地址+Key"
+                                            FontSize="15">
+                                        </TextBox>
+                                    </DockPanel>
+                                </WrapPanel>
+                            </Grid>
+                        </TabItem.Content>
+                    </TabItem>
+
+                </TabControl>
+                <Button 
+                    Click="OK_Click"
+                    Margin="16" 
+	                Height="36" Width="56" Padding="2" 
+                    materialDesign:RippleAssist.IsDisabled="True" 
+                    VerticalAlignment="Bottom" HorizontalAlignment="Right" 
+	                Style="{StaticResource MaterialDesignFlatButton}" 
+	                Content="确定" />
+                <!--使用-->
+                <materialDesign:Snackbar MessageQueue="{Binding Snackbar}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
